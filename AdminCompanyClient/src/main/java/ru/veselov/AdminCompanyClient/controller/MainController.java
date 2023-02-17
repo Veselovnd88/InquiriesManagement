@@ -5,17 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
 import ru.veselov.AdminCompanyClient.model.ManagerModel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @Controller
 @RequestMapping(name = "/")
@@ -59,4 +61,42 @@ public class MainController {
         model.addAttribute("managers",managers);
         return "adminPage";
     }
+
+    @GetMapping("/admin/managers")
+    public String managerPage(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                                  OAuth2AuthorizedClient authorizedClient,
+                              Model model){
+
+        List<ManagerModel> managers = new ArrayList<>();
+        managers.add(ManagerModel.builder().firstName("first").lastName("Last").managerId(1000L)
+                .build());
+        //TODO
+        model.addAttribute("managers",managers);
+        return "managers";
+    }
+
+    @GetMapping(value = "/admin/divisions")
+    public String divisionsPage(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                              OAuth2AuthorizedClient authorizedClient,
+                              Model model){
+        //TODO
+        return "divisions";
+    }
+
+    @PostMapping(value = "/admin/divisions/create")
+    public String createDivision(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                                     OAuth2AuthorizedClient authorizedClient,
+                                 Model model){
+        //TODO
+        return "divisions";
+    }
+
+    @DeleteMapping(value = "/admin/divisions/delete")
+    public String deleteDivision(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                                    OAuth2AuthorizedClient authorizedClient,
+                                Model model){
+        //TODO
+        return "divisions";
+    }
+
 }
