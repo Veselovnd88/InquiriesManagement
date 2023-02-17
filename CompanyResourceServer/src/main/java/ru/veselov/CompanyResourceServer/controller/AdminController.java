@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -27,11 +28,6 @@ public class AdminController {
     public AdminController(DivisionService divisionService, CustomerService customerService) {
         this.divisionService = divisionService;
         this.customerService = customerService;
-    }
-
-    @GetMapping("/")
-    public String index(@AuthenticationPrincipal Jwt jwt){
-        return "Hello "+jwt.getSubject();
     }
 
     @GetMapping(value = "/divs", produces = MediaType.APPLICATION_JSON_VALUE)

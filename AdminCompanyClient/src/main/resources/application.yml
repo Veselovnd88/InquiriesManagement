@@ -1,6 +1,8 @@
 server:
   port: 9103
 
+resource-uri: "http://127.0.0.1:9101/api/"
+
 spring:
   security:
     oauth2:
@@ -30,4 +32,4 @@ spring:
 
 logging:
   level:
-    org.springframework: DEBUG
+    org.springframework: INFO

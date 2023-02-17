@@ -3,6 +3,7 @@ package ru.veselov.AdminCompanyClient.security;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,7 +26,8 @@ public class SecurityConfig {
         * Скоупе OPENID (узнать подробнее)
         * Другие конфигурации клиента забираются из пропертей и передаются в RegisteredOauth2Authorizedclient */
         http.authorizeHttpRequests(request->
-                request.anyRequest().authenticated())
+                request.requestMatchers(HttpMethod.GET,"/admin**").permitAll()
+                        .anyRequest().authenticated())
                 .oauth2Login(log->
                         log.loginPage(OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI+"/admin-client-oidc"))
                 .oauth2Client(Customizer.withDefaults());

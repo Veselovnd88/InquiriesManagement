@@ -4,10 +4,27 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
-    <title>Admin page</title>
+    <meta charset="UTF-8">
+    <title>Страница администратора</title>
 </head>
-
 <body>
-<h2>Admin page</h2>
+<h1> Управление отделами и менеджерами </h1>
+
+<p> Перечень отделов  </p>
+<div th:each = "d : ${divisions}" >
+    <p
+        th:text= "${d.getDivisionId()+' : '+ d.getName() }">
+    </p>
+</div>
+
+<div th:each = "m : ${managers}" >
+    <p th:text= "${m.getLastName() +' : ответственный за отделы: '}">
+    </p>
+    <div th:each="d : ${m.getDivisions()}">
+        <p th:text="${d.getName()}"></p>
+    </div>
+</div>
+
+
 </body>
 </html>
