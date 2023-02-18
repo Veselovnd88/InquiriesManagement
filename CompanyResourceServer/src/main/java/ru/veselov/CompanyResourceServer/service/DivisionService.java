@@ -53,6 +53,13 @@ public class DivisionService{
         else throw new NoSuchDivisionException();
     }
 
+    public Optional<DivisionModel> findById(String id){
+        Optional<Division> one = divisionDAO.findOne(id);
+        return one.map(this::toDivisionModel);
+
+
+    }
+
     public void remove(DivisionModel division){
         divisionDAO.deleteById(division.getDivisionId());
         log.info("{}: отдел удален",division.getDivisionId() );

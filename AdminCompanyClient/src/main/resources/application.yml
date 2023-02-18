@@ -33,3 +33,4 @@ spring:
 logging:
   level:
     org.springframework: INFO
+    ru.veselov: TRACE

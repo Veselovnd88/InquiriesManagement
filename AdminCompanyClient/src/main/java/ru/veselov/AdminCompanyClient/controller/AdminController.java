@@ -1,5 +1,6 @@
 package ru.veselov.AdminCompanyClient.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,13 +8,12 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
 import ru.veselov.AdminCompanyClient.model.ManagerModel;
+import ru.veselov.AdminCompanyClient.util.DivisionValidator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,14 +22,16 @@ import java.util.List;
 @Controller
 @RequestMapping(name = "/")
 @Slf4j
-public class MainController {
+public class AdminController {
     @Value("${resource-uri}")
     private String resourceUri;
 
     private final WebClient webClient;
+    private final DivisionValidator divisionValidator;
     @Autowired
-    public MainController(WebClient webClient) {
+    public AdminController(WebClient webClient, DivisionValidator divisionValidator) {
         this.webClient = webClient;
+        this.divisionValidator = divisionValidator;
     }
 
     @GetMapping("/admin")
@@ -38,6 +40,7 @@ public class MainController {
                                 OAuth2AuthorizedClient authorizedClient,
                                 Model model)
     {
+        log.trace("Запрос по адресу /admin");
 /*        DivisionModel[] result= webClient.get().uri(resourceUri + "/divs")
                 .attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
                 .retrieve().bodyToMono(DivisionModel[].class).block();
@@ -66,7 +69,7 @@ public class MainController {
     public String managerPage(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
                                   OAuth2AuthorizedClient authorizedClient,
                               Model model){
-
+        log.trace("Запрос по адресу /admin/managers");
         List<ManagerModel> managers = new ArrayList<>();
         managers.add(ManagerModel.builder().firstName("first").lastName("Last").managerId(1000L)
                 .build());
@@ -79,16 +82,31 @@ public class MainController {
     public String divisionsPage(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
                               OAuth2AuthorizedClient authorizedClient,
                               Model model){
-        //TODO
+        log.trace("Запрос по адресу /admin/divisions");
+        List<DivisionModel> divisions = new ArrayList<>();
+        divisions.add(DivisionModel.builder().divisionId("LL").name("Hello").build());
+        divisions.add(DivisionModel.builder().divisionId("LT").name("Hello2").build());
+        model.addAttribute("divisions", divisions);
         return "divisions";
+    }
+    @GetMapping(value = "/admin/divisions/create")
+    public String divisionCreate(@ModelAttribute("division") DivisionModel division){
+        return "divisionCreate";
     }
 
     @PostMapping(value = "/admin/divisions/create")
     public String createDivision(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
-                                     OAuth2AuthorizedClient authorizedClient,
-                                 Model model){
-        //TODO
-        return "divisions";
+           OAuth2AuthorizedClient authorizedClient,
+                                 @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors){
+        log.trace("POST запрос на /admin/divisions/create");
+        divisionValidator.validate(division,errors);
+        if(errors.hasErrors()){
+            log.info("Неправильный ввод отдела");
+            return "divisionCreate";
+        }
+        log.info("Отправка отдела {} на сохранение", division.getName());
+        //TODO WebClient post
+        return "redirect:/admin/divisions";
     }
 
     @DeleteMapping(value = "/admin/divisions/delete")

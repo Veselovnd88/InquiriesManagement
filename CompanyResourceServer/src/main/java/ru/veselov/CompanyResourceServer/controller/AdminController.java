@@ -15,6 +15,7 @@ import ru.veselov.CompanyResourceServer.service.CustomerService;
 import ru.veselov.CompanyResourceServer.service.DivisionService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -34,6 +35,14 @@ public class AdminController {
     @ResponseStatus(value = HttpStatus.OK)
     public @ResponseBody List<DivisionModel> getDivisions(){
         return divisionService.findAll();
+    }
+
+    @GetMapping(value = "/divs/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity <DivisionModel> getDivision(@PathVariable("id") String id){
+        log.trace("Запрос отдела по id {}", id);
+        Optional<DivisionModel> optional = divisionService.findById(id);
+        return optional.map(d-> new ResponseEntity<>(d,HttpStatus.OK))
+                .orElseGet(()->new ResponseEntity<>(null,HttpStatus.NOT_FOUND));
     }
 
     @PostMapping(value = "/customer",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
