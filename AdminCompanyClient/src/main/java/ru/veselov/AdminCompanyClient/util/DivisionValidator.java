@@ -2,30 +2,31 @@ package ru.veselov.AdminCompanyClient.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
 
-import java.util.Arrays;
 import java.util.Optional;
 
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.*;
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 @Component
 @Slf4j
 public class DivisionValidator implements Validator {
 
+    @Value("${resource-uri}")
+    private String resourceUri;
+
     private final WebClient webClient;
-    private final OAuth2AuthorizedClientManager auth2AuthorizedClientManager;
     @Autowired
-    public DivisionValidator(WebClient webClient, OAuth2AuthorizedClientManager auth2AuthorizedClientManager) {
+    public DivisionValidator(WebClient webClient) {
         this.webClient = webClient;
-        this.auth2AuthorizedClientManager = auth2AuthorizedClientManager;
     }
 
     @Override
@@ -37,20 +38,23 @@ public class DivisionValidator implements Validator {
     public void validate(Object target, Errors errors) {
         log.trace("Валидация объекта DivisionModel");
         DivisionModel divisionModel = (DivisionModel) target;
-
+        /*WebClient делает get запрос по адресу переданному в uri,
+        * передаются аттрибуты авторизованного клиента (access token)
+        * При получении указанных статусов, отдаем пустой Optional - */
         Optional<DivisionModel> optional = webClient.get()
-                .uri("http://localhost:9101/api/divs/dd")//FIXME неправильно отправляет запрос
-                //.uri(uriBuilder -> uriBuilder
-                        /*.path("http://localhost:9101/api/divs/{id}")
-                        .build(divisionModel.getDivisionId()))*/
+                .uri(uriBuilder -> uriBuilder
+                        .path(resourceUri+"/divs/{id}")
+                        .build(divisionModel.getDivisionId()))
                 .attributes(clientRegistrationId("admin-client-authorization-code"))
-                .retrieve().bodyToMono(DivisionModel.class).blockOptional();
-
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
+                .bodyToMono(DivisionModel.class).blockOptional();
         if(optional.isPresent()){
-            log.trace("Код существует");
-            errors.rejectValue("division","Такой код уже существует");
+            log.trace("Выдача ошибки");
+            errors.rejectValue("divisionId","","Такой код уже существует");
         }
-        log.trace("Кода не существует");
+        log.trace("Валидация успешна, такого ID базе еще нет");
     }
 
 }
