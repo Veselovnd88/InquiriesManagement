@@ -119,9 +119,26 @@ public class AuthServerConfig   {
                         .build())*/
                 .build();
 
+        RegisteredClient testClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("test-client")
+                .clientSecret(passwordEncoder.encode("secret"))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri("http://127.0.0.1:7070/login/oauth2/code/test-client-oidc")
+                .redirectUri("http://127.0.0.1:7070/authorized")
+                .scope(OidcScopes.OPENID)
+                .scope("test")
+                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofHours(2))
+                        .build())
+                .build();
+
         List<RegisteredClient> clients=new ArrayList<>();
         clients.add(registeredClient);
         clients.add(adminClient);
+        clients.add(testClient);
         return new InMemoryRegisteredClientRepository(clients);
     }
 
