@@ -24,8 +24,6 @@ spring:
             authorization-grant-type: authorization_code
             scope: admin
             redirect-uri: "http://127.0.0.1:9103/authorized"
-
-
         provider:
           spring:
             issuer-uri: http://localhost:9102
@@ -33,4 +31,5 @@ spring:
 logging:
   level:
     org.springframework: INFO
+    org.springframework.security.oauth2.client: INFO
     ru.veselov: TRACE

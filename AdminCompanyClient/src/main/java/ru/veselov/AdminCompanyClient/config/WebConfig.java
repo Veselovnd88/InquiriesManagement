@@ -1,4 +1,4 @@
-package ru.veselov.AdminCompanyClient.security;
+package ru.veselov.AdminCompanyClient.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -15,21 +15,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 @Slf4j
 public class WebConfig {
-
-
-
-
     /*Настройка WebClient*/
-    @Bean
-    public OAuth2AuthorizedClientManager auth2AuthorizedClientManager(ClientRegistrationRepository clientRegistrationRepository,
-                                                                      OAuth2AuthorizedClientRepository oAuth2AuthorizedClientRepository){
-        OAuth2AuthorizedClientProvider provider = OAuth2AuthorizedClientProviderBuilder.builder()
-                .authorizationCode().refreshToken().build();
-        DefaultOAuth2AuthorizedClientManager manager = new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository,
-                oAuth2AuthorizedClientRepository);
-        manager.setAuthorizedClientProvider(provider);
-        return manager;
-    }
+
 
     @Bean
     public WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
