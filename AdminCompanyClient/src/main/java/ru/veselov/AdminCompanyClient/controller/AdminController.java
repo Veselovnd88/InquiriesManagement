@@ -4,13 +4,17 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
 import ru.veselov.AdminCompanyClient.model.ManagerModel;
 import ru.veselov.AdminCompanyClient.util.DivisionValidator;
@@ -18,6 +22,8 @@ import ru.veselov.AdminCompanyClient.util.DivisionValidator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.*;
 
 @Controller
 @RequestMapping(name = "/")
@@ -105,14 +111,22 @@ public class AdminController {
             return "divisionCreate";
         }
         log.info("Отправка отдела {} на сохранение", division.getName());
-        //TODO WebClient post
+        webClient.post().uri(resourceUri + "/divs/create")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .body(Mono.just(division), DivisionModel.class)
+                .attributes(oauth2AuthorizedClient(authorizedClient))
+                .retrieve().bodyToMono(DivisionModel.class).block();
+
         return "redirect:/admin/divisions";
     }
 
-    @DeleteMapping(value = "/admin/divisions/delete")
-    public String deleteDivision(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
-                                    OAuth2AuthorizedClient authorizedClient,
-                                Model model){
+
+    @DeleteMapping(value = "/admin/divisions/delete/{id}")
+    public String deleteDivision(
+            @RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                OAuth2AuthorizedClient authorizedClient,
+                @PathVariable("id") String id,
+                Model model){
         //TODO
         return "divisions";
     }

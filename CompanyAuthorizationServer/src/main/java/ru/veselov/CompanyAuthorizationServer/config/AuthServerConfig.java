@@ -114,9 +114,9 @@ public class AuthServerConfig   {
                 .scope(OidcScopes.OPENID)
                 .scope("admin")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
-                /*.tokenSettings(TokenSettings.builder()//FIXME проверить что это за зверь
-                        .accessTokenTimeToLive(Duration.ofHours(1))
-                        .build())*/
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofMinutes(10))
+                        .build())
                 .build();
 
         RegisteredClient testClient = RegisteredClient.withId(UUID.randomUUID().toString())

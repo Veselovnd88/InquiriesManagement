@@ -41,18 +41,19 @@ public class DivisionValidator implements Validator {
         /*WebClient делает get запрос по адресу переданному в uri,
         * передаются аттрибуты авторизованного клиента (access token)
         * При получении указанных статусов, отдаем пустой Optional - */
+        log.trace("Id: {}",divisionModel.getDivisionId());
         Optional<DivisionModel> optional = webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path(resourceUri+"/divs/{id}")
-                        .build(divisionModel.getDivisionId()))
+                .uri(resourceUri+"/divs"+divisionModel.getDivisionId())
                 .attributes(clientRegistrationId("admin-client-authorization-code"))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
                 .bodyToMono(DivisionModel.class).blockOptional();
         if(optional.isPresent()){
+            log.trace("Optional {}", optional.get().getDivisionId());
             log.trace("Выдача ошибки");
             errors.rejectValue("divisionId","","Такой код уже существует");
+            return;
         }
         log.trace("Валидация успешна, такого ID базе еще нет");
     }

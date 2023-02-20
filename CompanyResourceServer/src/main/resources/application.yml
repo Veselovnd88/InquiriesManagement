@@ -32,9 +32,9 @@ spring:
 
 logging:
   level:
-    org.springframework: ERROR
-    ru.veselov: TRACE
-    org.hibernate: ERROR
+    org.springframework: INFO
+    ru.veselov: INFO
+    org.hibernate: INFO
   pattern:
     console: "%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %green(%logger{36}): %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36}: %msg%n"
