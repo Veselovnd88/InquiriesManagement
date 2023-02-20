@@ -36,21 +36,24 @@ public class DivisionValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
+        if(errors.hasErrors()){
+            log.trace("Ошибки при заполнении формы, до валидации");
+            return;
+        }
         log.trace("Валидация объекта DivisionModel");
         DivisionModel divisionModel = (DivisionModel) target;
         /*WebClient делает get запрос по адресу переданному в uri,
         * передаются аттрибуты авторизованного клиента (access token)
         * При получении указанных статусов, отдаем пустой Optional - */
-        log.trace("Id: {}",divisionModel.getDivisionId());
+        log.trace("Id объекта: {}",divisionModel.getDivisionId());
         Optional<DivisionModel> optional = webClient.get()
-                .uri(resourceUri+"/divs"+divisionModel.getDivisionId())
+                .uri(resourceUri+"/divs/"+divisionModel.getDivisionId())
                 .attributes(clientRegistrationId("admin-client-authorization-code"))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
-                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
+                .onStatus(HttpStatusCode::is4xxClientError,  clientResponse -> Mono.empty())
                 .bodyToMono(DivisionModel.class).blockOptional();
         if(optional.isPresent()){
-            log.trace("Optional {}", optional.get().getDivisionId());
             log.trace("Выдача ошибки");
             errors.rejectValue("divisionId","","Такой код уже существует");
             return;

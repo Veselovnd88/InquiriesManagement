@@ -89,6 +89,7 @@ public class AdminController {
                               OAuth2AuthorizedClient authorizedClient,
                               Model model){
         log.trace("Запрос по адресу /admin/divisions");
+        log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration());
         List<DivisionModel> divisions = new ArrayList<>();
         divisions.add(DivisionModel.builder().divisionId("LL").name("Hello").build());
         divisions.add(DivisionModel.builder().divisionId("LT").name("Hello2").build());
@@ -97,6 +98,7 @@ public class AdminController {
     }
     @GetMapping(value = "/admin/divisions/create")
     public String divisionCreate(@ModelAttribute("division") DivisionModel division){
+        log.trace("GET method /admin/divisions/create");
         return "divisionCreate";
     }
 
@@ -105,9 +107,10 @@ public class AdminController {
            OAuth2AuthorizedClient authorizedClient,
                                  @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors){
         log.trace("POST запрос на /admin/divisions/create");
+        log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
         divisionValidator.validate(division,errors);
         if(errors.hasErrors()){
-            log.info("Неправильный ввод отдела");
+            log.trace("Ошибка при вводе отдела: {}", errors.getAllErrors().get(0));
             return "divisionCreate";
         }
         log.info("Отправка отдела {} на сохранение", division.getName());
