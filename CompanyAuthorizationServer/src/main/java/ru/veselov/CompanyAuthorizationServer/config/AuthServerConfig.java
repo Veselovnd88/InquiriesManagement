@@ -126,12 +126,12 @@ public class AuthServerConfig   {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 //.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://127.0.0.1:7071/login/oauth2/code/test-client-oidc")
-                .redirectUri("http://127.0.0.1:7071/authorized")
+                //.redirectUri("http://127.0.0.1:7071/authorized")
                 .scope(OidcScopes.OPENID)
                 .scope("test")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
                 .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofHours(2))
+                        .accessTokenTimeToLive(Duration.ofHours(1))
                         .build())
                 .build();
 
