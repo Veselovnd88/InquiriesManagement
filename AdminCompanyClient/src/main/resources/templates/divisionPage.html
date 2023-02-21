@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+  <meta charset="UTF-8">
+  <title>Страницу отдела</title>
+</head>
+<body>
+<h1> Информация об отделе</h1>
+<hr>
+<div th:if="${division!=null}"
+        th:text="${division.getName()+' '+division.getDivisionId()}"></div>
+<div th:if="${division==null}"> Такого отдела не существует</div>
+
+<hr>
+<a href="/admin/divisions"> Вернуться </a>
+<hr>
+
+</body>
+</html>

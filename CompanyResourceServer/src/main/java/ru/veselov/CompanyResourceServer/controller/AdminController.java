@@ -47,8 +47,15 @@ public class AdminController {
     @PostMapping(value = "/divs/create",consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DivisionModel> createDivision(@RequestBody DivisionModel divisionModel){
         log.info("Сохранение отдела в БД {}", divisionModel.getDivisionId());
-        divisionService.save(divisionModel);
-        return new ResponseEntity<>(divisionModel,HttpStatus.CREATED);
+        Optional<DivisionModel> byId = divisionService.findById(divisionModel.getDivisionId());
+        if(byId.isEmpty()){
+            divisionService.save(divisionModel);
+            return new ResponseEntity<>(divisionModel,HttpStatus.CREATED);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
     }
 
     @PostMapping(value = "/customer",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

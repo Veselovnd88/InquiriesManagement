@@ -9,17 +9,17 @@
 </head>
 <body>
 <h1> Управление отделами</h1>
-<!--
 
-<div th:each = "m : ${managers}" >
-    <a th:href="${'/admin/managers/'+m.getManagerId()}">Manager </a>
+<div th:each = "d : ${divisions}" >
+    <a th:href="${'/admin/divisions/'+d.getDivisionId()}">
+    <p th:text="${d.getName()}"></p></a>
 </div>
--->
+
 <hr>
 <a href="/admin/divisions/create"> Создать новый отдел </a>
 
 <hr>
-<a href="/admin"> Вернуться </a>
+<a href="/admin/divisions"> Вернуться </a>
 <hr>
 
 </body>
