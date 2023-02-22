@@ -36,7 +36,7 @@ public class AdminController {
                                 OAuth2AuthorizedClient authorizedClient,
                                 Model model)
     {
-        log.trace("Запрос по адресу /admin");
+        log.trace("IN GET Запрос по адресу /admin");
 /*        DivisionModel[] result= webClient.get().uri(resourceUri + "/divs")
                 .attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
                 .retrieve().bodyToMono(DivisionModel[].class).block();
