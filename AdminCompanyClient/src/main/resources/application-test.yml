@@ -1,0 +1,10 @@
+server:
+  port: 9103
+
+resource-uri: "http://127.0.0.1:9101/api/"
+
+logging:
+  level:
+    org.springframework: INFO
+    org.springframework.security.oauth2.client: INFO
+    ru.veselov: TRACE
