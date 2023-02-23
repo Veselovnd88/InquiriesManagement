@@ -35,18 +35,16 @@ public class DivisionController {
     private String resourceUri;
 
     private final WebClient webClient;
-    private final DivisionValidator divisionValidator;
     @Autowired
-    public DivisionController(WebClient webClient, DivisionValidator divisionValidator) {
+    public DivisionController(WebClient webClient) {
         this.webClient = webClient;
-        this.divisionValidator = divisionValidator;
     }
 
     @GetMapping()
     public String divisionsPage(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
                                 OAuth2AuthorizedClient authorizedClient,
                                 Model model){
-        log.trace("Запрос по адресу /admin/divisions");
+        log.trace("IN GET /admin/divisions");
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
         log.trace("Получение списка отделов");
         DivisionModel[] result= webClient.get().uri(resourceUri + "/divs")
@@ -65,7 +63,7 @@ public class DivisionController {
 
     @GetMapping(value = "/create")
     public String divisionCreate(@ModelAttribute("division") DivisionModel division){
-        log.trace("GET method /admin/divisions/create");
+        log.trace("IN GET /admin/divisions/create");
         return "divisionCreate";
     }
 
@@ -74,10 +72,10 @@ public class DivisionController {
                                  OAuth2AuthorizedClient authorizedClient,
                                  @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors){
 
-        log.trace("POST запрос на /admin/divisions/create");
+        log.trace("IN POST на /admin/divisions/create");
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
         if(errors.hasErrors()){
-            log.trace("Ошибка при вводе отдела: {}", errors.getAllErrors().get(0));
+            log.info("Ошибка при вводе отдела: {}", errors.getAllErrors().get(0));
             return "divisionCreate";
         }
         log.info("Отправка отдела {} на сохранение", division.getName());
@@ -89,14 +87,13 @@ public class DivisionController {
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
                 .onStatus(HttpStatus.FORBIDDEN::equals, clientResponse -> Mono.empty())
                 .bodyToMono(DivisionModel.class).blockOptional();
+
         if(optional.isEmpty()){
             errors.rejectValue("divisionId","","Отдел с таким ID уже существует");
-        }
-
-        if(errors.hasErrors()){
-            log.trace("Отдел с таким ID уже существует {}", errors.getAllErrors().get(0));
+            log.info("Отдел с таким ID:{} уже существует",division.getDivisionId());
             return "divisionCreate";
         }
+
         return "redirect:/admin/divisions";
     }
 
@@ -104,7 +101,7 @@ public class DivisionController {
     public String showDivision(@PathVariable("id") String id, Model model,
                                @RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
                                OAuth2AuthorizedClient authorizedClient){
-        log.trace("GET запрос на /admin/divisions/{}",id);
+        log.trace("IN GET /admin/divisions/{}",id);
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
 
         Optional<DivisionModel> optional = webClient.get()
@@ -126,6 +123,7 @@ public class DivisionController {
             OAuth2AuthorizedClient authorizedClient,
             @PathVariable("id") String id,
             Model model){
+        log.trace("IN /admin/divisions/delete/{}", id);
         //TODO
         return "divisions";
     }
