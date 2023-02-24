@@ -1,6 +1,7 @@
 package ru.veselov.AdminCompanyClient.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.assertj.core.util.Arrays;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +64,7 @@ class DivisionControllerTest {
                         .name("PP")
                         .build()
         );
-        setUpWebClientGet(array);
+        setUpWebClientGet(array,DivisionModel.class);
         mockMvc.perform(get("/admin/divisions")
             .with(oauth2Client("admin-client-authorization-code")))
                     .andExpect(status().isOk())
@@ -75,7 +76,7 @@ class DivisionControllerTest {
 
     @Test
     void divisionPageWithNoDivisions() throws Exception {
-        setUpWebClientGet(null);
+        setUpWebClientGet(null,DivisionModel[].class);
         mockMvc.perform(get("/admin/divisions")
                         .with(oauth2Client("admin-client-authorization-code")))
                 .andExpect(status().isOk())
@@ -96,8 +97,8 @@ class DivisionControllerTest {
 
     @Test
     void postDivisionCreateTest() throws Exception {
-        DivisionModel name = DivisionModel.builder().divisionId("OK").name("OK").build();
-        setUpWebClientPost(name);
+        DivisionModel division = DivisionModel.builder().divisionId("OK").name("OK").build();
+        setUpWebClientPost(division);
         mockMvc.perform(post("/admin/divisions/create")
                         .param("divisionId","LL")
                         .param("name","PPadfasdfasdfasdfasdf")
@@ -107,22 +108,74 @@ class DivisionControllerTest {
                 .andExpect(view().name("redirect:/admin/divisions"));
     }
 
+    @Test
+    void postDivisionCreateErrorsDivisionExistsTest() throws Exception {
+        setUpWebClientPost(null);
+        mockMvc.perform(post("/admin/divisions/create")
+                        .param("divisionId","LL")
+                        .param("name","PPadfasdfasdfasdfasdf")
+                        .with(csrf())
+                        .with(oauth2Client("admin-client-authorization-code")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("divisionCreate"));
+    }
 
-    private void setUpWebClientGet(DivisionModel[] array){
+    @Test
+    void postDivisionCreateErrorsFromFormTest() throws Exception {
+        DivisionModel division = DivisionModel.builder().divisionId("OK").name("OK").build();
+        setUpWebClientPost(division);
+        mockMvc.perform(post("/admin/divisions/create")
+                        .param("divisionId","LLL")
+                        .param("name","PPadfasdfasdfasdfasdf")
+                        .with(csrf())
+                        .with(oauth2Client("admin-client-authorization-code")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("divisionCreate"));
+    }
+
+    @Test
+    @SneakyThrows
+    void getOneDivisionTest(){
+        DivisionModel division = DivisionModel.builder().divisionId("OK").name("OK").build();
+        setUpWebClientGet(division,DivisionModel.class);
+        mockMvc.perform(get("/admin/divisions/"+division.getDivisionId())
+                        .with(oauth2Client("admin-client-authorization-code")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("divisionPage"))
+                .andExpect(content().string(Matchers.containsString("Страница отдела")))
+        ;
+    }
+
+    @Test
+    @SneakyThrows
+    void getOneDivisionErrorTest(){
+
+        setUpWebClientGet(null,DivisionModel.class);
+        mockMvc.perform(get("/admin/divisions/--")
+                        .with(oauth2Client("admin-client-authorization-code")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("divisionPage"))
+                .andExpect(content().string(Matchers.containsString("Такого")))
+        ;
+    }
+
+
+
+
+    private void setUpWebClientGet(Object obj, Class<?> clazz){
         when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.attributes(any(Consumer.class))).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        Mono<DivisionModel[]> mono = mock(Mono.class);
-        when(mono.block()).thenReturn(array);
-        when(responseSpec.bodyToMono(DivisionModel[].class)).thenReturn(mono);
+        Mono mono = mock(Mono.class);
+        when(mono.block()).thenReturn(obj);
+        when(responseSpec.bodyToMono(clazz)).thenReturn(mono);
+        when(responseSpec.onStatus(any(Predicate.class),any(Function.class))).thenReturn(responseSpec);
         when(webClient.get()).thenReturn(requestHeadersUriSpec);
     }
 
     private void setUpWebClientPost(DivisionModel divisionModel){
-
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.header(anyString(),anyString())).thenReturn(requestBodySpec);
-
         when(requestBodySpec.body(any(Publisher.class), (Class<?>) any())).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.attributes(any(Consumer.class))).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);

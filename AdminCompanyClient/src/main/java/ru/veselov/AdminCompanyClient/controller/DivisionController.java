@@ -93,7 +93,7 @@ public class DivisionController {
             log.info("Отдел с таким ID:{} уже существует",division.getDivisionId());
             return "divisionCreate";
         }
-
+        log.trace("Redirect to :/admin/divisions");
         return "redirect:/admin/divisions";
     }
 
@@ -124,7 +124,16 @@ public class DivisionController {
             @PathVariable("id") String id,
             Model model){
         log.trace("IN /admin/divisions/delete/{}", id);
-        //TODO
+
+        webClient.delete().uri(resourceUri+"divs/"+id)
+                .attributes(clientRegistrationId("admin-client-authorization-code"))
+                .retrieve()
+                .onStatus(HttpStatus.OK::equals,clientResponse -> Mono.empty())
+                .onStatus(HttpStatusCode::is5xxServerError,clientResponse -> Mono.error(Exception::new))
+                .toBodilessEntity().block();
+
+        log.info("Отдел с ID:{} удален", id);
+
         return "divisions";
     }
 

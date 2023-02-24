@@ -5,7 +5,7 @@
       layout:decorate="~{layout.html}">
 <head>
   <meta charset="UTF-8">
-  <title>Страницу отдела</title>
+  <title>Страница отдела</title>
 </head>
 <body>
 <h1> Информация об отделе</h1>
@@ -14,6 +14,11 @@
         th:text="${division.getName()+' '+division.getDivisionId()}"></div>
 <div th:if="${division==null}"> Такого отдела не существует</div>
 
+
+<form th:method="DELETE" th:action="@{/admin/divisions/delete/{id}(id=${division.getDivisionId()})}"
+th:object="${division}">
+  <input type="submit" value="Удалить отдел" name="delete">
+</form>
 <hr>
 <a href="/admin/divisions"> Вернуться </a>
 <hr>

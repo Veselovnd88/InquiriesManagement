@@ -4,6 +4,8 @@ server:
 resource-uri: "http://127.0.0.1:9101/api/"
 
 spring:
+  mvc:
+    hiddenmethod.filter.enabled: true
   security:
     oauth2:
       client:

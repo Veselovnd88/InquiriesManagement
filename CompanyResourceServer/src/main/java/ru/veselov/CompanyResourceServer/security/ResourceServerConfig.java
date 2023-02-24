@@ -25,8 +25,9 @@ public class ResourceServerConfig {
         http
                 .authorizeHttpRequests()
                 .antMatchers(HttpMethod.GET,"/api**").hasAuthority("SCOPE_admin")
-                        .antMatchers(HttpMethod.POST, "/api/divs**").hasAuthority("SCOPE_admin")
-                        .anyRequest().authenticated().and()
+                .antMatchers(HttpMethod.POST, "/api/divs**").hasAuthority("SCOPE_admin")
+                .antMatchers(HttpMethod.DELETE, "/api/divs**").hasAuthority("SCOPE_admin")
+                .anyRequest().authenticated().and()
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         // @formatter:on
         return http.build();

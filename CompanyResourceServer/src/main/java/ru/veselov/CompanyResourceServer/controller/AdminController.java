@@ -5,9 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyResourceServer.model.DivisionModel;
@@ -55,8 +52,17 @@ public class AdminController {
         else{
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-
     }
+
+    @DeleteMapping(value = "/divs/{id}")
+    public ResponseEntity deleteDivision(@PathVariable("id") String id){
+        log.trace("IN Delete /api/divs/delete/{}",id);
+        log.info("Удаление отдела с ID:{}", id);
+        Optional<DivisionModel> byId = divisionService.findById(id);
+        byId.ifPresent(divisionService::remove);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @PostMapping(value = "/customer",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
