@@ -12,7 +12,8 @@
 <hr>
 <div th:if="${division!=null}"
         th:text="${division.getName()+' '+division.getDivisionId()}"></div>
-<div th:if="${division==null}"> Такого отдела не существует</div>
+
+<div th:unless="${division!=null}"> Такого отдела не существует</div>
 
 
 <form th:method="DELETE" th:action="@{/admin/divisions/delete/{id}(id=${division.getDivisionId()})}"

@@ -131,10 +131,9 @@ public class DivisionController {
                 .onStatus(HttpStatus.OK::equals,clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is5xxServerError,clientResponse -> Mono.error(Exception::new))
                 .toBodilessEntity().block();
-
         log.info("Отдел с ID:{} удален", id);
 
-        return "divisions";
+        return "redirect:/admin/divisions";
     }
 
 
