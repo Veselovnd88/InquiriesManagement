@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
-import ru.veselov.AdminCompanyClient.util.DivisionValidator;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +46,7 @@ public class DivisionController {
         log.trace("IN GET /admin/divisions");
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
         log.trace("Получение списка отделов");
-        DivisionModel[] result= webClient.get().uri(resourceUri + "/divs")
+        DivisionModel[] result= webClient.get().uri("/divisions")
                 .attributes(oauth2AuthorizedClient(authorizedClient))
                 .retrieve().bodyToMono(DivisionModel[].class).block();
         List<DivisionModel> divisions;
@@ -79,7 +78,7 @@ public class DivisionController {
             return "divisionCreate";
         }
         log.info("Отправка отдела {} на сохранение", division.getName());
-        Optional<DivisionModel> optional = webClient.post().uri(resourceUri + "/divs/create")
+        Optional<DivisionModel> optional = webClient.post().uri("/divisions/create")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(Mono.just(division), DivisionModel.class)
                 .attributes(oauth2AuthorizedClient(authorizedClient))
@@ -105,7 +104,7 @@ public class DivisionController {
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
 
         Optional<DivisionModel> optional = webClient.get()
-                .uri(resourceUri+"/divs/"+id)
+                .uri(uri-> uri.path("/divisions/{id}").build(id))
                 .attributes(clientRegistrationId("admin-client-authorization-code"))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
@@ -125,7 +124,7 @@ public class DivisionController {
             Model model){
         log.trace("IN /admin/divisions/delete/{}", id);
 
-        webClient.delete().uri(resourceUri+"divs/"+id)
+        webClient.delete().uri(uri-> uri.path("divisions/{id}").build(id))
                 .attributes(clientRegistrationId("admin-client-authorization-code"))
                 .retrieve()
                 .onStatus(HttpStatus.OK::equals,clientResponse -> Mono.empty())
@@ -143,7 +142,7 @@ public class DivisionController {
                                  OAuth2AuthorizedClient authorizedClient, Model model){
         log.trace("IN GET /admin/divisions/edit/{}",id);
         Optional<DivisionModel> optional = webClient.get()
-                .uri(resourceUri+"/divs/"+id)
+                .uri(uri-> uri.path("/divisions/{id}").build(id))
                 .attributes(clientRegistrationId("admin-client-authorization-code"))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
@@ -165,10 +164,9 @@ public class DivisionController {
             log.info("Ошибка при вводе отдела: {}", errors.getAllErrors().get(0));
             return "divisionCreate";
         }
-        log.info("Отправка отдела {} на сохранение", division.getName());
-        Optional<DivisionModel> optional = webClient.post()
-                .uri
-                .uri(resourceUri + "/divs/edit/")
+        log.info("Отправка отдела {} на изменение", division.getName());
+        Optional<DivisionModel> optional = webClient.patch()
+                .uri(uriBuilder -> uriBuilder.path("/divisions/edit/{id}").build(id))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(Mono.just(division), DivisionModel.class)
                 .attributes(oauth2AuthorizedClient(authorizedClient))
@@ -182,8 +180,8 @@ public class DivisionController {
             log.info("Отдел с таким ID:{} уже существует",division.getDivisionId());
             return "divisionCreate";
         }
-        log.trace("Redirect to :/admin/divisions");
-        return "redirect:/admin/divisions";
+        log.trace("Redirect to :/admin/divisions/");
+        return "redirect:/admin/divisions/"+optional.get().getDivisionId();
     }
 
 

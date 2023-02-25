@@ -24,6 +24,7 @@ public class WebConfig {
                 new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
         return WebClient.builder()
                 .apply(oauth2Client.oauth2Configuration())
+                .baseUrl("http://127.0.0.1:9101/api/")
                 .build();
     }
 
