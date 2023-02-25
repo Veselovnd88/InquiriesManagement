@@ -136,6 +136,56 @@ public class DivisionController {
         return "redirect:/admin/divisions";
     }
 
+    @GetMapping(value = "/edit/{id}")
+    public String divisionCreate(@PathVariable("id") String id,
+            @ModelAttribute("division") DivisionModel division,
+                                 @RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                                 OAuth2AuthorizedClient authorizedClient, Model model){
+        log.trace("IN GET /admin/divisions/edit/{}",id);
+        Optional<DivisionModel> optional = webClient.get()
+                .uri(resourceUri+"/divs/"+id)
+                .attributes(clientRegistrationId("admin-client-authorization-code"))
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
+                .bodyToMono(DivisionModel.class).blockOptional();
+        model.addAttribute("division", optional.orElse(null));
+        return "divisionEditPage";
+    }
+
+    @PatchMapping(value = "/edit/{id}")
+    public String editDivision(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                                 OAuth2AuthorizedClient authorizedClient,
+                                 @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors,
+    @PathVariable("id") String id){
+
+        log.trace("IN PATCH на /admin/divisions/edit/{}",id);
+        log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
+        if(errors.hasErrors()){
+            log.info("Ошибка при вводе отдела: {}", errors.getAllErrors().get(0));
+            return "divisionCreate";
+        }
+        log.info("Отправка отдела {} на сохранение", division.getName());
+        Optional<DivisionModel> optional = webClient.post()
+                .uri
+                .uri(resourceUri + "/divs/edit/")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .body(Mono.just(division), DivisionModel.class)
+                .attributes(oauth2AuthorizedClient(authorizedClient))
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
+                .onStatus(HttpStatus.FORBIDDEN::equals, clientResponse -> Mono.empty())
+                .bodyToMono(DivisionModel.class).blockOptional();
+
+        if(optional.isEmpty()){
+            errors.rejectValue("divisionId","","Отдел с таким ID уже существует");
+            log.info("Отдел с таким ID:{} уже существует",division.getDivisionId());
+            return "divisionCreate";
+        }
+        log.trace("Redirect to :/admin/divisions");
+        return "redirect:/admin/divisions";
+    }
+
 
 
 }

@@ -10,16 +10,25 @@
 <body>
 <h1> Информация об отделе</h1>
 <hr>
-<div th:if="${division!=null}"
-        th:text="${division.getName()+' '+division.getDivisionId()}"></div>
+<div th:if="${division!=null}">
+  <p th:text="${division.getName()+' '+division.getDivisionId()}"></p>
+
+        <form th:method="DELETE" th:action="@{/admin/divisions/delete/{id}(id=${division.getDivisionId()})}"
+        th:object="${division}">
+        <input type="submit" value="Удалить отдел" name="delete">
+        </form>
+        <br>
+        <form th:method="GET" th:action="@{/admin/divisions/edit/{id}(id=${division.getDivisionId()})}"
+              th:object="${division}">
+          <input type="submit" value="Редактировать" name="edit">
+        </form>
+
+</div>
 
 <div th:unless="${division!=null}"> Такого отдела не существует</div>
 
 
-<form th:method="DELETE" th:action="@{/admin/divisions/delete/{id}(id=${division.getDivisionId()})}"
-th:object="${division}">
-  <input type="submit" value="Удалить отдел" name="delete">
-</form>
+
 <hr>
 <a href="/admin/divisions"> Вернуться </a>
 <hr>

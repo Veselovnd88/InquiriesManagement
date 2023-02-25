@@ -160,6 +160,15 @@ class DivisionControllerTest {
     }
 
 
+    @Test
+    void getDivisionEditTest() throws Exception {
+        mockMvc.perform(get("/admin/divisions/edit/--")
+                        .with(oauth2Client("admin-client-authorization-code")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("divisionEditPage"));
+    }
+
+
 
 
     private void setUpWebClientGet(Object obj, Class<?> clazz){
