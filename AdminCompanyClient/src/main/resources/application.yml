@@ -6,29 +6,6 @@ resource-uri: "http://127.0.0.1:9101/api/"
 spring:
   mvc:
     hiddenmethod.filter.enabled: true
-  security:
-    oauth2:
-      client:
-        registration:
-          #one client for oidc scope, and another for restTemplate scope, what happend - see in SecurityConfig and RestService
-          admin-client-oidc:
-            provider: spring
-            client-id: admin-client
-            client-secret: secret
-            authorization-grant-type: authorization_code
-            scope: openid
-            redirect-uri: "http://127.0.0.1:9103/login/oauth2/code/{registrationId}"
-
-          admin-client-authorization-code:
-            provider: spring
-            client-id: admin-client
-            client-secret: secret
-            authorization-grant-type: authorization_code
-            scope: admin
-            redirect-uri: "http://127.0.0.1:9103/authorized"
-        provider:
-          spring:
-            issuer-uri: http://localhost:9102
 
 logging:
   level:

@@ -3,12 +3,13 @@ package ru.veselov.AdminCompanyClient.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,24 +31,35 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 @Slf4j
 public class DivisionController {
 
-    @Value("${resource-uri}")
-    private String resourceUri;
-
     private final WebClient webClient;
+    private final OAuth2AuthorizedClientManager auth2AuthorizedClientManager;
+    private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
+
     @Autowired
-    public DivisionController(WebClient webClient) {
+    public DivisionController(WebClient webClient, OAuth2AuthorizedClientManager auth2AuthorizedClientManager, OAuth2AuthorizedClientService auth2AuthorizedClientService) {
         this.webClient = webClient;
+        this.auth2AuthorizedClientManager = auth2AuthorizedClientManager;
+        this.auth2AuthorizedClientService = auth2AuthorizedClientService;
     }
 
     @GetMapping()
-    public String divisionsPage(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+    public String divisionsPage(@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                 OAuth2AuthorizedClient authorizedClient,
                                 Model model){
+        /*Получение всех отделов*/
+        /*Аннотация в том числе сохраняет авторизованного клиента в контексте приложения, поэтому если мы ее убираем
+        * то из сервиса получаем нул*/
         log.trace("IN GET /admin/divisions");
-        log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
+       // log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
         log.trace("Получение списка отделов");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        OAuth2AuthorizedClient oAuth2AuthorizedClient = auth2AuthorizedClientService.loadAuthorizedClient("admin-client-code", authentication.getName());
+
+        System.out.println(oAuth2AuthorizedClient.getPrincipalName());
         DivisionModel[] result= webClient.get().uri("/divisions")
-                .attributes(oauth2AuthorizedClient(authorizedClient))
+                .attributes(oauth2AuthorizedClient(oAuth2AuthorizedClient))
                 .retrieve().bodyToMono(DivisionModel[].class).block();
         List<DivisionModel> divisions;
         if(result==null){
@@ -61,12 +73,15 @@ public class DivisionController {
     }
 
     @GetMapping(value = "/create")
+    /*Создание отдела*/
     public String divisionCreate(@ModelAttribute("division") DivisionModel division){
+        //Аннотация @ModelAttribute-> создает и помещает в модель чистый объект DivisionModel
         log.trace("IN GET /admin/divisions/create");
         return "divisionCreate";
     }
 
     @PostMapping(value = "/create")
+    /*Создание отдела - передача готового*/
     public String createDivision(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
                                  OAuth2AuthorizedClient authorizedClient,
                                  @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors){

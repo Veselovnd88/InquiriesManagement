@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout.html}">
+      layout:decorate="~{layout.html}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.ultraq.net.nz/thymeleaf/layout ">
 <head>
     <meta charset="UTF-8">
     <title>Страница администратора</title>
@@ -10,38 +11,12 @@
 <body>
 <h1> Управление отделами и менеджерами </h1>
 
-<p> Перечень отделов  </p>
-<div th:if="${#lists.isEmpty(divisions)}">
-    Еще нет отделов
-</div>
-<div th:if="${not #lists.isEmpty(divisions)}">
-
-<div th:each = "d : ${divisions}" >
-    <p
-        th:text= "${d.getDivisionId()+' : '+ d.getName() }">
-    </p>
-</div>
-
-</div>
-
-<div th:each = "m : ${managers}" >
-        <p th:text= "${m.getLastName() +' : ответственный за отделы: '}">
-             <div th:each="d : ${m.getDivisions()}">
-                <ul>   <li th:text="${d.getName()+'; '}"></li>
-                </ul>
-            </div>
-        </p>
-</div>
-
-</div>
-
 <hr>
 <a href="/admin/managers"> Управление менеджерами </a>
 <hr>
 <a href="/admin/divisions"> Управление отделами </a>
 <hr>
 <a href="/admin/inquiry"> Посмотреть все запросы </a>
-
 
 </body>
 </html>

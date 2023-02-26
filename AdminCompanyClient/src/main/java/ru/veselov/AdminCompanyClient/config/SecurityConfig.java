@@ -1,4 +1,4 @@
-package ru.veselov.AdminCompanyClient.security;
+package ru.veselov.AdminCompanyClient.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -10,10 +10,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.web.SecurityFilterChain;
 
 
@@ -51,6 +56,39 @@ public class SecurityConfig {
         manager.setAuthorizedClientProvider(provider);
         return manager;
     }
+
+    @Bean
+    public ClientRegistrationRepository clientRegistrationRepository(){
+
+        ClientRegistration oidc = ClientRegistration.withRegistrationId("admin-client-oidc")
+                .clientId("admin-client")
+                .clientSecret("secret")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .tokenUri("http://localhost:9102/oauth2/token")
+                .authorizationUri("http://localhost:9102/oauth2/authorize")
+                .redirectUri("http://127.0.0.1:9103/login/oauth2/code/admin-client-oidc")
+                .issuerUri("http://localhost:9102")
+                .jwkSetUri("http://localhost:9102/oauth2/jwks")
+                .scope(OidcScopes.OPENID)
+                .build();
+
+        ClientRegistration admin = ClientRegistration.withRegistrationId("admin-client-code")
+                .clientId("admin-client")
+                .clientSecret("secret")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .tokenUri("http://localhost:9102/oauth2/token")
+                .authorizationUri("http://localhost:9102/oauth2/authorize")
+                .redirectUri("http://127.0.0.1:9103/authorized")
+                .issuerUri("http://localhost:9102")
+                .jwkSetUri("http://localhost:9102/oauth2/jwks")
+                .scope("admin")
+                .build();
+
+        return new InMemoryClientRegistrationRepository(oidc,admin);
+    }
+
 
     
 
