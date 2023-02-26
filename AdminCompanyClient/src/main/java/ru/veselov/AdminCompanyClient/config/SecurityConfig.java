@@ -37,7 +37,7 @@ public class SecurityConfig {
         * Скоупе OPENID (узнать подробнее)
         * Другие конфигурации клиента забираются из пропертей и передаются в RegisteredOauth2Authorizedclient */
         http.authorizeHttpRequests(request->
-                request.requestMatchers(HttpMethod.GET,"/admin**").permitAll()
+                request.requestMatchers("login/oauth2/code/*").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(log->
                         log.loginPage(OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI+"/admin-client-oidc"))
@@ -48,14 +48,21 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizedClientManager auth2AuthorizedClientManager(ClientRegistrationRepository clientRegistrationRepository,
                                                                       OAuth2AuthorizedClientRepository oAuth2AuthorizedClientRepository){
-        /*в провайдере указываются необходимые нам типы AuthorizationGrant*/
-        OAuth2AuthorizedClientProvider provider = OAuth2AuthorizedClientProviderBuilder.builder()
-                .authorizationCode().refreshToken().build();
+
         DefaultOAuth2AuthorizedClientManager manager = new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository,
                 oAuth2AuthorizedClientRepository);
-        manager.setAuthorizedClientProvider(provider);
+        manager.setAuthorizedClientProvider(auth2AuthorizedClientProvider());
         return manager;
     }
+
+    @Bean
+    OAuth2AuthorizedClientProvider auth2AuthorizedClientProvider(){
+        /*в провайдере указываются необходимые нам типы AuthorizationGrant*/
+        return OAuth2AuthorizedClientProviderBuilder.builder()
+                .authorizationCode().refreshToken()
+                .build();
+    }
+
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(){
