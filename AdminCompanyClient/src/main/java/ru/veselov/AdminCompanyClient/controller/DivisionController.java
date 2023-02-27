@@ -9,7 +9,10 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.*;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,23 +46,24 @@ public class DivisionController {
     }
 
     @GetMapping()
-    public String divisionsPage(@RegisteredOAuth2AuthorizedClient("admin-client-code")
-                                OAuth2AuthorizedClient authorizedClient,
+    public String divisionsPage(/*@RegisteredOAuth2AuthorizedClient("admin-client-code")
+                                OAuth2AuthorizedClient authorizedClient,*/
                                 Model model){
         /*Получение всех отделов*/
-        /*Аннотация в том числе сохраняет авторизованного клиента в контексте приложения, поэтому если мы ее убираем
-        * то из сервиса получаем нул*/
         log.trace("IN GET /admin/divisions");
-       // log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
-        log.trace("Получение списка отделов");
-
+        log.info("Получение списка отделов");
+        /*Получаем аутентификацию из контекста, для получения клиента с новым ID составляем request и получаем объект из менеджера,
+        * теперь его можно использовать для передачи webClient*/
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2AuthorizeRequest request= OAuth2AuthorizeRequest.withClientRegistrationId("admin-client-code")
+                .principal(authentication).build();
 
-        OAuth2AuthorizedClient oAuth2AuthorizedClient = auth2AuthorizedClientService.loadAuthorizedClient("admin-client-code", authentication.getName());
+        OAuth2AuthorizedClient authorizedClient = auth2AuthorizedClientManager.authorize(request);
+        auth2AuthorizedClientService.saveAuthorizedClient(authorizedClient,authentication);//FIXME проверить что тут будет происходить
+        log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
 
-        System.out.println(oAuth2AuthorizedClient.getPrincipalName());
         DivisionModel[] result= webClient.get().uri("/divisions")
-                .attributes(oauth2AuthorizedClient(oAuth2AuthorizedClient))
+                .attributes(oauth2AuthorizedClient(authorizedClient))
                 .retrieve().bodyToMono(DivisionModel[].class).block();
         List<DivisionModel> divisions;
         if(result==null){

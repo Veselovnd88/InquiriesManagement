@@ -20,7 +20,12 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.web.SecurityFilterChain;
-
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+/*
+* http://localhost:9102/oauth2/authorize?response_type=code&client_id=admin-client
+* &scope=openid&state=AMp8d4r23RY1jxZfsqzeoCwZrEcPx_16rz-fKZxqFMQ=&redirect_
+* uri=http://127.0.0.1:9103/login/oauth2/code/admin-client-oidc&nonce=VvHPpdDm9a4EQh-5j69NS4RbGsfo-f5Tb43EDis7b_o&continue
+* */
 
 @Configuration
 @Slf4j
@@ -30,24 +35,25 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         log.info("Настройка filterChain");
-        /*запрос отправляется по адресу http://127.0.0.1:9103/oauth2/authorization/admin-client-oidc
-        * Далее оттуда уходит с кодом со статусом openid на сервер авторизации, оттуда приходит код авторизации,
+        /*После GET запроса на адрес, перенаправляется на сервер авторизации, после логина (отправка POST с кредами)
+        * после отправляется GET запрос на сервер авторизации;
+        * после сервер авторизации отправляет code GET запрос по адресу http://127.0.0.1:9103/oauth2/authorization/admin-client-oidc
         * Код перенаправляется на oauth2/token, проверяется y oauth2/jwks, далее  получаем свой токены приложения и можем его использовать
         * Перед логином - перенаправляет на страницу авторизации - по умолчанию, для входа в клиентское приложение логин происходит в
-        * Скоупе OPENID (узнать подробнее)
-        * Другие конфигурации клиента забираются из пропертей и передаются в RegisteredOauth2Authorizedclient */
+        * Скоупе OPENID
+        * Если использовать закомменченное DEFAULT... то не работает, т.к. есть конфликт в именах (localhost и т.д.)
+        */
         http.oauth2Login(log->
-                      log.loginPage("http://127.0.0.1:9103/oauth2/authorization/admin-client-oidc"))
+                //log.loginPage(OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI+"/admin-client-oidc"))
+                            log.loginPage("http://127.0.0.1:9103/oauth2/authorization/admin-client-oidc"))
                 .oauth2Client(Customizer.withDefaults());
-        http.authorizeHttpRequests(r-> r.requestMatchers("/oauth2/**", "/login/**").permitAll());
+        http.authorizeHttpRequests(r-> r.requestMatchers("/oauth2/**", "/login/**").permitAll());//FIXME - убрать, не нужно
         http.authorizeHttpRequests(request->
                 request
                         .anyRequest().authenticated());
-
-
-
         return http.build();
     }
+
 
     @Bean
     public OAuth2AuthorizedClientManager auth2AuthorizedClientManager(ClientRegistrationRepository clientRegistrationRepository,

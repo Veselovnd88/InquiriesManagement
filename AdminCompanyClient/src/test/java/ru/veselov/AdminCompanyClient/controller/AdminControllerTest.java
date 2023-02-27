@@ -31,7 +31,7 @@ class AdminControllerTest {
     @WithMockUser
     public void adminPageTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/admin")
-                        .with(oauth2Client("admin-client-authorization-code")))
+                        .with(oauth2Client("admin-client-code")))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.view().name("adminPage"))
                 .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("Страница администратора")));
