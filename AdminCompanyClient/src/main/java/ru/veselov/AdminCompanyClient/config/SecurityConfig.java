@@ -47,7 +47,6 @@ public class SecurityConfig {
                 //log.loginPage(OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI+"/admin-client-oidc"))
                             log.loginPage("http://127.0.0.1:9103/oauth2/authorization/admin-client-oidc"))
                 .oauth2Client(Customizer.withDefaults());
-        http.authorizeHttpRequests(r-> r.requestMatchers("/oauth2/**", "/login/**").permitAll());//FIXME - убрать, не нужно
         http.authorizeHttpRequests(request->
                 request
                         .anyRequest().authenticated());

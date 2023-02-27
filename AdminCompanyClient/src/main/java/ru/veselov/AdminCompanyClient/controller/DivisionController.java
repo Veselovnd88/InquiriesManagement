@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
+import ru.veselov.AdminCompanyClient.model.ManagerModel;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
@@ -129,6 +131,12 @@ public class DivisionController {
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
                 .bodyToMono(DivisionModel.class).blockOptional();
+
+        /*Для проверки*/
+
+        optional.ifPresent(divisionModel -> divisionModel.setManagers(Set.of(ManagerModel.builder()
+                .lastName("Vasya")
+                .userName("UserPetya").build())));
 
         model.addAttribute("division",optional.orElse(null));
         return "divisionPage";

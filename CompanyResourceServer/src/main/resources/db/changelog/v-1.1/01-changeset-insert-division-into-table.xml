@@ -7,19 +7,19 @@
 
     <changeSet id="12" author="veselov">
         <insert tableName="division">
-            <column name="division_id" value="LEUZE"/>
+            <column name="division_id" value="LZ"/>
             <column name="name" value="Ультразвуковые, оптические датчики LEUZE"/>
         </insert>
         <insert tableName="division">
-            <column name="division_id" value="PRESSURE"/>
+            <column name="division_id" value="PR"/>
             <column name="name" value="Датчики давления, расхода, температуры"/>
         </insert>
         <insert tableName="division">
-            <column name="division_id" value="LPKF"/>
+            <column name="division_id" value="LP"/>
             <column name="name" value="Станки для печатных плат LPKF"/>
         </insert>
         <insert tableName="division">
-            <column name="division_id" value="COMMON"/>
+            <column name="division_id" value="CM"/>
             <column name="name" value="Общие вопросы"/>
         </insert>
     </changeSet>

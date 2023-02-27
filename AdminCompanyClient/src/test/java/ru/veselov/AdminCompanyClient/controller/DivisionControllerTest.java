@@ -5,18 +5,15 @@ import lombok.SneakyThrows;
 import org.assertj.core.util.Arrays;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
 
@@ -25,12 +22,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Client;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.web.reactive.function.client.WebClient.*;
 
@@ -66,7 +63,7 @@ class DivisionControllerTest {
         );
         setUpWebClientGet(array,DivisionModel.class);
         mockMvc.perform(get("/admin/divisions")
-            .with(oauth2Client("admin-client-authorization-code")))
+            .with(oauth2Client("admin-client-code")))
                     .andExpect(status().isOk())
                     .andExpect(view().name("divisions"))
                     .andExpect(content().string(Matchers.containsString("Управление")))
@@ -78,7 +75,7 @@ class DivisionControllerTest {
     void divisionPageWithNoDivisions() throws Exception {
         setUpWebClientGet(null,DivisionModel[].class);
         mockMvc.perform(get("/admin/divisions")
-                        .with(oauth2Client("admin-client-authorization-code")))
+                        .with(oauth2Client("admin-client-code")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("divisions"))
                 .andExpect(content().string(Matchers.containsString("Управление")))
@@ -89,7 +86,7 @@ class DivisionControllerTest {
     @Test
     void getDivisionCreateTest() throws Exception {
         mockMvc.perform(get("/admin/divisions/create")
-                .with(oauth2Client("admin-client-authorization-code")))
+                .with(oauth2Client("admin-client-code")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("divisionCreate"))
                 .andExpect(content().string(Matchers.containsString("Создание")));
@@ -103,7 +100,7 @@ class DivisionControllerTest {
                         .param("divisionId","LL")
                         .param("name","PPadfasdfasdfasdfasdf")
                         .with(csrf())
-                .with(oauth2Client("admin-client-authorization-code")))
+                .with(oauth2Client("admin-client-code")))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/admin/divisions"));
     }
@@ -115,7 +112,7 @@ class DivisionControllerTest {
                         .param("divisionId","LL")
                         .param("name","PPadfasdfasdfasdfasdf")
                         .with(csrf())
-                        .with(oauth2Client("admin-client-authorization-code")))
+                        .with(oauth2Client("admin-client-code")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("divisionCreate"));
     }
@@ -128,7 +125,7 @@ class DivisionControllerTest {
                         .param("divisionId","LLL")
                         .param("name","PPadfasdfasdfasdfasdf")
                         .with(csrf())
-                        .with(oauth2Client("admin-client-authorization-code")))
+                        .with(oauth2Client("admin-client-code")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("divisionCreate"));
     }
@@ -139,7 +136,7 @@ class DivisionControllerTest {
         DivisionModel division = DivisionModel.builder().divisionId("OK").name("OK").build();
         setUpWebClientGet(division,DivisionModel.class);
         mockMvc.perform(get("/admin/divisions/"+division.getDivisionId())
-                        .with(oauth2Client("admin-client-authorization-code")))
+                        .with(oauth2Client("admin-client-code")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("divisionPage"))
                 .andExpect(content().string(Matchers.containsString("Страница отдела")))
@@ -152,7 +149,7 @@ class DivisionControllerTest {
 
         setUpWebClientGet(null,DivisionModel.class);
         mockMvc.perform(get("/admin/divisions/--")
-                        .with(oauth2Client("admin-client-authorization-code")))
+                        .with(oauth2Client("admin-client-code")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("divisionPage"))
                 .andExpect(content().string(Matchers.containsString("Такого")))
@@ -163,7 +160,7 @@ class DivisionControllerTest {
     @Test
     void getDivisionEditTest() throws Exception {
         mockMvc.perform(get("/admin/divisions/edit/--")
-                        .with(oauth2Client("admin-client-authorization-code")))
+                        .with(oauth2Client("admin-client-code")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("divisionEditPage"));
     }

@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.CompanyResourceServer.exception.NoSuchDivisionException;
 import ru.veselov.CompanyResourceServer.model.DivisionModel;
 import ru.veselov.CompanyResourceServer.service.CustomerService;
 import ru.veselov.CompanyResourceServer.service.DivisionService;
@@ -37,9 +38,12 @@ public class DivisionController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity <DivisionModel> getDivision(@PathVariable("id") String id){
         log.info("Запрос отдела по id {}", id);
-        Optional<DivisionModel> optional = divisionService.findById(id);
-        return optional.map(d-> new ResponseEntity<>(d,HttpStatus.OK))
-                .orElseGet(()->new ResponseEntity<>(null,HttpStatus.NOT_FOUND));
+        try {
+            DivisionModel oneWithManagers = divisionService.findOneWithManagers(id);
+            return new ResponseEntity<>(oneWithManagers,HttpStatus.OK);
+        } catch (NoSuchDivisionException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
     @PostMapping(value = "/create",consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DivisionModel> createDivision(@RequestBody DivisionModel divisionModel){
@@ -81,7 +85,7 @@ public class DivisionController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteDivision(@PathVariable("id") String id){
+    public ResponseEntity<Void> deleteDivision(@PathVariable("id") String id){
         log.trace("IN Delete /api/divs/delete/{}",id);
         log.info("Удаление отдела с ID:{}", id);
         Optional<DivisionModel> byId = divisionService.findById(id);

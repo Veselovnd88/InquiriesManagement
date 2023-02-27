@@ -33,8 +33,8 @@ public class DivisionService{
         divisionDAO.save(toDivisionEntity(division));
     }
 
-    public DivisionModel findOneWithManagers(DivisionModel division) throws NoSuchDivisionException {
-        Optional<Division> oneWithManagers = divisionDAO.findOneWithManagers(division.getDivisionId());
+    public DivisionModel findOneWithManagers(String divisionId) throws NoSuchDivisionException {
+        Optional<Division> oneWithManagers = divisionDAO.findOneWithManagers(divisionId);
         if(oneWithManagers.isPresent()){
             DivisionModel divisionModel = toDivisionModel(oneWithManagers.get());
             divisionModel.setManagers(

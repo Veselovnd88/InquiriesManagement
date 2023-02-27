@@ -11,7 +11,7 @@
 <h1> Информация об отделе</h1>
 <hr>
 <div th:if="${division!=null}">
-  <p th:text="${division.getName()+' '+division.getDivisionId()}"></p>
+    <p th:text="${division.getName()+' '+division.getDivisionId()}"></p>
 
         <form th:method="DELETE" th:action="@{/admin/divisions/delete/{id}(id=${division.getDivisionId()})}"
         th:object="${division}">
@@ -22,6 +22,23 @@
               th:object="${division}">
           <input type="submit" value="Редактировать" name="edit">
         </form>
+    <p>Ответственные менеджеры </p>
+    <table>
+        <tr>
+            <th>Фамилия</th>
+            <th> Имя </th>
+            <th> Имя пользователя </th>
+        </tr>
+        <tr th:each="manager: ${division.getManagers()}">
+            <td th:text="${manager.lastName}"></td>
+            <td th:text="${manager.firstName} ?: '-'"></td>
+            <td th:text="${manager.userName} ?: '-'"></td>
+            <td>
+                <a th:href="${'/admin/managers/'+manager.getLastName()}">Подробней</a>
+            </td>
+        </tr>
+    </table>
+
 
 </div>
 
