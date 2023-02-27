@@ -82,7 +82,7 @@ public class DivisionController {
 
     @PostMapping(value = "/create")
     /*Создание отдела - передача готового*/
-    public String createDivision(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+    public String createDivision(@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                  OAuth2AuthorizedClient authorizedClient,
                                  @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors){
 
@@ -113,14 +113,14 @@ public class DivisionController {
 
     @GetMapping(value = "/{id}")
     public String showDivision(@PathVariable("id") String id, Model model,
-                               @RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                               @RegisteredOAuth2AuthorizedClient("admin-client-code")
                                OAuth2AuthorizedClient authorizedClient){
         log.trace("IN GET /admin/divisions/{}",id);
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
 
         Optional<DivisionModel> optional = webClient.get()
                 .uri(uri-> uri.path("/divisions/{id}").build(id))
-                .attributes(clientRegistrationId("admin-client-authorization-code"))
+                .attributes(clientRegistrationId("admin-client-code"))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
@@ -133,14 +133,14 @@ public class DivisionController {
 
     @DeleteMapping(value = "/delete/{id}")
     public String deleteDivision(
-            @RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+            @RegisteredOAuth2AuthorizedClient("admin-client-code")
             OAuth2AuthorizedClient authorizedClient,
             @PathVariable("id") String id,
             Model model){
         log.trace("IN /admin/divisions/delete/{}", id);
 
         webClient.delete().uri(uri-> uri.path("divisions/{id}").build(id))
-                .attributes(clientRegistrationId("admin-client-authorization-code"))
+                .attributes(clientRegistrationId("admin-client-code"))
                 .retrieve()
                 .onStatus(HttpStatus.OK::equals,clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is5xxServerError,clientResponse -> Mono.error(Exception::new))
@@ -153,12 +153,12 @@ public class DivisionController {
     @GetMapping(value = "/edit/{id}")
     public String divisionCreate(@PathVariable("id") String id,
             @ModelAttribute("division") DivisionModel division,
-                                 @RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+                                 @RegisteredOAuth2AuthorizedClient("admin-client-code")
                                  OAuth2AuthorizedClient authorizedClient, Model model){
         log.trace("IN GET /admin/divisions/edit/{}",id);
         Optional<DivisionModel> optional = webClient.get()
                 .uri(uri-> uri.path("/divisions/{id}").build(id))
-                .attributes(clientRegistrationId("admin-client-authorization-code"))
+                .attributes(clientRegistrationId("admin-client-code"))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
@@ -168,7 +168,7 @@ public class DivisionController {
     }
 
     @PatchMapping(value = "/edit/{id}")
-    public String editDivision(@RegisteredOAuth2AuthorizedClient("admin-client-authorization-code")
+    public String editDivision(@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                  OAuth2AuthorizedClient authorizedClient,
                                  @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors,
     @PathVariable("id") String id){
