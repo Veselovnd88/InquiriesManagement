@@ -65,6 +65,7 @@ public class DivisionController {
                 .principal(authentication).build();
 
         OAuth2AuthorizedClient authorizedClient = auth2AuthorizedClientManager.authorize(request);
+        log.warn(authorizedClient.getAccessToken().getTokenValue());
         auth2AuthorizedClientService.saveAuthorizedClient(authorizedClient,authentication);//FIXME проверить что тут будет происходить
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
 

@@ -115,7 +115,7 @@ public class SecurityConfig {
         return new InMemoryClientRegistrationRepository(oidc,admin);
     }
 
-    @Bean
+
     public GrantedAuthoritiesMapper userAuthoritiesMapper() {
         return (authorities) -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
@@ -123,7 +123,7 @@ public class SecurityConfig {
             authorities.forEach(authority -> {
                 if (OidcUserAuthority.class.isInstance(authority)) {
                     OidcUserAuthority oidcUserAuthority = (OidcUserAuthority)authority;
-
+                    log.warn(oidcUserAuthority.getAuthority());
                     OidcIdToken idToken = oidcUserAuthority.getIdToken();
                     OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
 
@@ -132,7 +132,7 @@ public class SecurityConfig {
 
                 } else if (OAuth2UserAuthority.class.isInstance(authority)) {
                     OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority)authority;
-
+                    log.warn(oauth2UserAuthority.getAuthority());
                     Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
 
                     // Map the attributes found in userAttributes
