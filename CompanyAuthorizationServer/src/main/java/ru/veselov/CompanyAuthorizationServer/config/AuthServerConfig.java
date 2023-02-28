@@ -13,6 +13,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -28,6 +29,8 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
@@ -54,6 +57,7 @@ public class AuthServerConfig   {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(Customizer.withDefaults());	// Enable OpenID Connect 1.0
+
         http
                 // Redirect to the login page when not authenticated from the
                 // authorization endpoint
@@ -63,7 +67,6 @@ public class AuthServerConfig   {
                 )
                 // Accept access tokens for User Info and/or Client Registration
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-
         return http.build();
     }
 
@@ -89,10 +92,10 @@ public class AuthServerConfig   {
                 /*Тип авторизации*/
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 //адреса для перенаправления, если указывать недействительные, то бросает ошибку
-                .redirectUri("https://oauthdebugger.com/debug")
-                .scope(OidcScopes.OPENID)
-                .scope("write-inquiry")
-                .scope("get-info")
+                .redirectUri("https://oauthdebugger.com/debug")//FIXME
+                .scope(OidcScopes.OPENID)//FIXME
+                .scope("write-inquiry")//FIXME
+                .scope("get-info")//FIXME
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
                 .build();
 
@@ -190,6 +193,8 @@ public class AuthServerConfig   {
         daoAuthenticationProvider.setUserDetailsService(userDetail);
         return daoAuthenticationProvider;
     }
+
+
 
 
 

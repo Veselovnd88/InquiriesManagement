@@ -14,6 +14,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -54,6 +56,8 @@ public class DivisionController {
         /*Получение всех отделов*/
         log.trace("IN GET /admin/divisions");
         log.info("Получение списка отделов");
+
+
         /*Получаем аутентификацию из контекста, для получения клиента с новым ID составляем request и получаем объект из менеджера,
         * теперь его можно использовать для передачи webClient*/
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

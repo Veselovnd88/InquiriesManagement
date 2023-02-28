@@ -1,8 +1,11 @@
 package ru.veselov.AdminCompanyClient.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +25,9 @@ public class AdminController {
     public String adminMainPage()
     {
         log.trace("IN GET Запрос по адресу /admin");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+        log.info(token.getAuthorities().toString());
         return "adminPage";
     }
 
