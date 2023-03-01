@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .oauth2Client(Customizer.withDefaults());
         http.authorizeHttpRequests(request->
                 request
+                        .requestMatchers("/admin**").hasAnyRole("ROLE_ADMIN")
                         .anyRequest().authenticated());
         return http.build();
     }

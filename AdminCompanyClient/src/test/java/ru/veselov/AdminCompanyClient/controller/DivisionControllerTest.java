@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -32,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.reactive.function.client.WebClient.*;
 
 @WebMvcTest(controllers = DivisionController.class)
-@WithMockUser(username = "admin", password = "hate666")
+@WithMockUser(username = "admin", password = "hate666",roles = {"ADMIN","USER"})
 @AutoConfigureWebMvc
 class DivisionControllerTest {
     @Autowired
@@ -42,12 +44,18 @@ class DivisionControllerTest {
     private WebClient webClient;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @MockBean
+    private OAuth2AuthorizedClientManager auth2AuthorizedClientManager;
+    @MockBean
+    private OAuth2AuthorizedClientService auth2AuthorizedClientService;
 
     private RequestHeadersUriSpec requestHeadersUriSpec = mock(RequestHeadersUriSpec.class);
     private RequestBodyUriSpec requestBodyUriSpec = mock(RequestBodyUriSpec.class);
     private RequestBodySpec requestBodySpec = mock(RequestBodySpec.class);
     private RequestHeadersSpec requestHeadersSpec = mock(RequestHeadersSpec.class);
     ResponseSpec responseSpec = mock(ResponseSpec.class);
+
+
     @BeforeEach
     void init(){
 
@@ -61,6 +69,7 @@ class DivisionControllerTest {
                         .name("PP")
                         .build()
         );
+        //Auth2AuthorizedClient.getPrincipalName()" because "authorizedClient" is null FIXME
         setUpWebClientGet(array,DivisionModel.class);
         mockMvc.perform(get("/admin/divisions")
             .with(oauth2Client("admin-client-code")))

@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Client;
 
 @WebMvcTest(controllers = AdminController.class)
-@WithMockUser(username = "admin", password = "hate666")
+@WithMockUser(username = "admin", password = "hate666",roles = {"ADMIN"})
 @AutoConfigureWebMvc
 class AdminControllerTest {
 

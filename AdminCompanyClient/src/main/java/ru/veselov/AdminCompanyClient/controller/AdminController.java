@@ -26,9 +26,6 @@ public class AdminController {
     public String adminMainPage()
     {
         log.trace("IN GET Запрос по адресу /admin");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-        log.info(token.getAuthorities().toString());
         return "adminPage";
     }
     @PreAuthorize("hasAuthority('ROLE_TEST')")
