@@ -11,8 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -54,11 +59,24 @@ class DivisionControllerTest {
     private RequestBodySpec requestBodySpec = mock(RequestBodySpec.class);
     private RequestHeadersSpec requestHeadersSpec = mock(RequestHeadersSpec.class);
     ResponseSpec responseSpec = mock(ResponseSpec.class);
-
+    OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
+    ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("test")
+            .clientId("1")
+            .registrationId("1")
+            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .authorizationUri("test")
+            .redirectUri("test")
+            .tokenUri("test")
+            .jwkSetUri("test")
+            .issuerUri("test")
+            .scope("test").build();
 
     @BeforeEach
     void init(){
-
+        when(auth2AuthorizedClientManager.authorize(any(OAuth2AuthorizeRequest.class))).thenReturn(authorizedClient);
+        when(authorizedClient.getPrincipalName()).thenReturn("test");
+        when(authorizedClient.getClientRegistration()).thenReturn(clientRegistration);
     }
 
     @Test
@@ -69,8 +87,8 @@ class DivisionControllerTest {
                         .name("PP")
                         .build()
         );
-        //Auth2AuthorizedClient.getPrincipalName()" because "authorizedClient" is null FIXME
-        setUpWebClientGet(array,DivisionModel.class);
+
+        setUpWebClientGet(array,DivisionModel[].class);
         mockMvc.perform(get("/admin/divisions")
             .with(oauth2Client("admin-client-code")))
                     .andExpect(status().isOk())
@@ -155,7 +173,6 @@ class DivisionControllerTest {
     @Test
     @SneakyThrows
     void getOneDivisionErrorTest(){
-
         setUpWebClientGet(null,DivisionModel.class);
         mockMvc.perform(get("/admin/divisions/--")
                         .with(oauth2Client("admin-client-code")))
@@ -168,6 +185,8 @@ class DivisionControllerTest {
 
     @Test
     void getDivisionEditTest() throws Exception {
+        DivisionModel division = DivisionModel.builder().divisionId("OK").name("OK").build();
+        setUpWebClientGet(division,DivisionModel.class);
         mockMvc.perform(get("/admin/divisions/edit/--")
                         .with(oauth2Client("admin-client-code")))
                 .andExpect(status().isOk())
@@ -178,6 +197,7 @@ class DivisionControllerTest {
 
 
     private void setUpWebClientGet(Object obj, Class<?> clazz){
+        when(requestHeadersUriSpec.uri(any(Function.class))).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.attributes(any(Consumer.class))).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
@@ -190,6 +210,7 @@ class DivisionControllerTest {
 
     private void setUpWebClientPost(DivisionModel divisionModel){
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
+        when(requestBodyUriSpec.uri(any(Function.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.header(anyString(),anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(Publisher.class), (Class<?>) any())).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.attributes(any(Consumer.class))).thenReturn(requestHeadersSpec);
