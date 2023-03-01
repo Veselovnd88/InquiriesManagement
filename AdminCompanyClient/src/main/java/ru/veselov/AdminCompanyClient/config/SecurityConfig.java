@@ -5,9 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
@@ -29,8 +32,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 /*
 * http://localhost:9102/oauth2/authorize?response_type=code&client_id=admin-client
 * &scope=openid&state=AMp8d4r23RY1jxZfsqzeoCwZrEcPx_16rz-fKZxqFMQ=&redirect_
@@ -40,6 +45,7 @@ import java.util.Set;
 @Configuration
 @Slf4j
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled=true)
 public class SecurityConfig {
 
     @Bean
@@ -115,29 +121,34 @@ public class SecurityConfig {
         return new InMemoryClientRegistrationRepository(oidc,admin);
     }
 
-
+    @Bean
+    @SuppressWarnings("unchecked")
     public GrantedAuthoritiesMapper userAuthoritiesMapper() {
+        /*Собираются все роли, и проверяются в зависимости от типа*/
         return (authorities) -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-
             authorities.forEach(authority -> {
-                if (OidcUserAuthority.class.isInstance(authority)) {
-                    OidcUserAuthority oidcUserAuthority = (OidcUserAuthority)authority;
-                    log.warn(oidcUserAuthority.getAuthority());
+                if (authority instanceof OidcUserAuthority oidcUserAuthority) {
+                    log.trace("Проверка роли из объекта OIDC: {}", authority);
                     OidcIdToken idToken = oidcUserAuthority.getIdToken();
                     OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
+                    List<GrantedAuthority> authoritiesFromToken = ((List<String>) idToken.getClaim("authorities")).stream()
+                            .map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+                    mappedAuthorities.add(oidcUserAuthority);
+                    mappedAuthorities.addAll(authoritiesFromToken);
+                    log.trace("Добавление в общих список ролей");
 
-                    // Map the claims found in idToken and/or userInfo
-                    // to one or more GrantedAuthority's and add it to mappedAuthorities
-
-                } else if (OAuth2UserAuthority.class.isInstance(authority)) {
-                    OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority)authority;
-                    log.warn(oauth2UserAuthority.getAuthority());
+                } else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
+                    log.trace("Проверка роли из объекта Oauth2Authority : {}", authority);
+                    //FIXME понять как сюда помещать асорити
                     Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
-
+                    mappedAuthorities.add(oauth2UserAuthority);
                     // Map the attributes found in userAttributes
                     // to one or more GrantedAuthority's and add it to mappedAuthorities
-
+                }
+                else{
+                    log.trace("Добавление роли, не вошедней в предыдущие две проверки: {}",authority);
+                    mappedAuthorities.add(authority);
                 }
             });
 

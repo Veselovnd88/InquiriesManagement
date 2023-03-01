@@ -1,6 +1,7 @@
 package ru.veselov.AdminCompanyClient.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequestMapping(name = "/")
 @Slf4j
 public class AdminController {
-
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/admin")
     //Administrator information page
     public String adminMainPage()
@@ -30,7 +31,7 @@ public class AdminController {
         log.info(token.getAuthorities().toString());
         return "adminPage";
     }
-
+    @PreAuthorize("hasAuthority('ROLE_TEST')")
     @GetMapping("/admin/managers")
     public String managerPage(@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                   OAuth2AuthorizedClient authorizedClient,

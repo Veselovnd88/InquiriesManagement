@@ -7,6 +7,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -48,7 +50,7 @@ public class DivisionController {
         this.auth2AuthorizedClientManager = auth2AuthorizedClientManager;
         this.auth2AuthorizedClientService = auth2AuthorizedClientService;
     }
-
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping()
     public String divisionsPage(/*@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                 OAuth2AuthorizedClient authorizedClient,*/
@@ -66,6 +68,7 @@ public class DivisionController {
 
         OAuth2AuthorizedClient authorizedClient = auth2AuthorizedClientManager.authorize(request);
         log.warn(authorizedClient.getAccessToken().getTokenValue());
+        boolean roleAdmin = authentication.getAuthorities().contains("ROLE_ADMIN");
         auth2AuthorizedClientService.saveAuthorizedClient(authorizedClient,authentication);//FIXME проверить что тут будет происходить
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
 
