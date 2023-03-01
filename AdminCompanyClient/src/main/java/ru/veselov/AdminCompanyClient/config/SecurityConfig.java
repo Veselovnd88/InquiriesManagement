@@ -3,9 +3,7 @@ package ru.veselov.AdminCompanyClient.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,7 +17,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -29,7 +26,6 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +41,7 @@ import java.util.stream.Collectors;
 @Configuration
 @Slf4j
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled=true)
+@EnableMethodSecurity()
 public class SecurityConfig {
 
     @Bean
@@ -123,7 +119,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked","unused"})
     public GrantedAuthoritiesMapper userAuthoritiesMapper() {
         /*Собираются все роли, и проверяются в зависимости от типа*/
         return (authorities) -> {
