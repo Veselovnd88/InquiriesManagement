@@ -65,7 +65,7 @@ public class SecurityConfig {
                 .oauth2Client(Customizer.withDefaults());
         http.authorizeHttpRequests(request->
                 request
-                        .requestMatchers("/admin**").hasAnyRole("ROLE_ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
                         .anyRequest().authenticated());
         return http.build();
     }
@@ -118,7 +118,7 @@ public class SecurityConfig {
                 .jwkSetUri("http://localhost:9102/oauth2/jwks")
                 .scope("admin")
                 .build();
-
+        //TODO перенести в БД
         return new InMemoryClientRegistrationRepository(oidc,admin);
     }
 
@@ -152,7 +152,6 @@ public class SecurityConfig {
                     mappedAuthorities.add(authority);
                 }
             });
-
             return mappedAuthorities;
         };
     }

@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping(name = "/")
 @Slf4j
 public class AdminController {
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+
     @GetMapping("/admin")
     //Administrator information page
     public String adminMainPage()
@@ -28,7 +28,7 @@ public class AdminController {
         log.trace("IN GET Запрос по адресу /admin");
         return "adminPage";
     }
-    @PreAuthorize("hasAuthority('ROLE_TEST')")
+
     @GetMapping("/admin/managers")
     public String managerPage(@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                   OAuth2AuthorizedClient authorizedClient,
@@ -37,7 +37,7 @@ public class AdminController {
         List<ManagerModel> managers = new ArrayList<>();
         managers.add(ManagerModel.builder().firstName("first").lastName("Last").managerId(1000L)
                 .build());
-        //TODO
+        //TODO страничка менеджеров
         model.addAttribute("managers",managers);
         return "managers";
     }

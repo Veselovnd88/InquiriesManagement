@@ -7,8 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -16,8 +14,6 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,12 +28,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
 @Controller
 @RequestMapping("/admin/divisions")
 @Slf4j
+
 public class DivisionController {
 
     private final WebClient webClient;
@@ -50,16 +46,13 @@ public class DivisionController {
         this.auth2AuthorizedClientManager = auth2AuthorizedClientManager;
         this.auth2AuthorizedClientService = auth2AuthorizedClientService;
     }
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+
     @GetMapping()
-    public String divisionsPage(/*@RegisteredOAuth2AuthorizedClient("admin-client-code")
-                                OAuth2AuthorizedClient authorizedClient,*/
-                                Model model){
-        /*Получение всех отделов*/
+    public String divisionsPage(Model model){
+        /*Получение всех отделов, здесь OAuth2A-Client получаю из контекста,
+        * и вручную помещаю в сервис*/
         log.trace("IN GET /admin/divisions");
         log.info("Получение списка отделов");
-
-
         /*Получаем аутентификацию из контекста, для получения клиента с новым ID составляем request и получаем объект из менеджера,
         * теперь его можно использовать для передачи webClient*/
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -67,9 +60,9 @@ public class DivisionController {
                 .principal(authentication).build();
 
         OAuth2AuthorizedClient authorizedClient = auth2AuthorizedClientManager.authorize(request);
-
         auth2AuthorizedClientService.saveAuthorizedClient(authorizedClient,authentication);//FIXME проверить что тут будет происходить
-        log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientName());
+        log.trace("Authorized name: {}",
+                authorizedClient != null ? authorizedClient.getClientRegistration().getClientName() : "null");
 
         DivisionModel[] result= webClient.get().uri("/divisions")
                 .attributes(oauth2AuthorizedClient(authorizedClient))
@@ -133,14 +126,14 @@ public class DivisionController {
 
         Optional<DivisionModel> optional = webClient.get()
                 .uri(uri-> uri.path("/divisions/{id}").build(id))
-                .attributes(clientRegistrationId("admin-client-code"))
+                .attributes(oauth2AuthorizedClient(authorizedClient))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
                 .bodyToMono(DivisionModel.class).blockOptional();
-
+        /*Получаем отдел сразу с прикрепленными менеджерами*/
         /*Для проверки*/
-
+        //FIXME
         optional.ifPresent(divisionModel -> divisionModel.setManagers(Set.of(ManagerModel.builder()
                 .lastName("Vasya")
                 .userName("UserPetya").build())));
@@ -154,12 +147,11 @@ public class DivisionController {
     public String deleteDivision(
             @RegisteredOAuth2AuthorizedClient("admin-client-code")
             OAuth2AuthorizedClient authorizedClient,
-            @PathVariable("id") String id,
-            Model model){
+            @PathVariable("id") String id){
         log.trace("IN /admin/divisions/delete/{}", id);
 
         webClient.delete().uri(uri-> uri.path("divisions/{id}").build(id))
-                .attributes(clientRegistrationId("admin-client-code"))
+                .attributes(oauth2AuthorizedClient(authorizedClient))
                 .retrieve()
                 .onStatus(HttpStatus.OK::equals,clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is5xxServerError,clientResponse -> Mono.error(Exception::new))
@@ -177,7 +169,7 @@ public class DivisionController {
         log.trace("IN GET /admin/divisions/edit/{}",id);
         Optional<DivisionModel> optional = webClient.get()
                 .uri(uri-> uri.path("/divisions/{id}").build(id))
-                .attributes(clientRegistrationId("admin-client-code"))
+                .attributes(oauth2AuthorizedClient(authorizedClient))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())

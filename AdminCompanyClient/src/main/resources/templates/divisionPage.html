@@ -34,7 +34,7 @@
             <td th:text="${manager.firstName} ?: '-'"></td>
             <td th:text="${manager.userName} ?: '-'"></td>
             <td>
-                <a th:href="${'/admin/managers/'+manager.getLastName()}">Подробней</a>
+                <a th:href="${'/admin/managers/'+manager.getManagerId()}">Подробней</a>
             </td>
         </tr>
     </table>

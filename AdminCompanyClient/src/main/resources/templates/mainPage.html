@@ -11,7 +11,9 @@
 <body>
 
 <hr>
-<a href="/admin"> Страница администратора </a>
+<div th:if="${isAdmin==true}">
+    <a href="/admin"> Страница администратора </a>
+</div>
 
 <hr>
 <a href="/manager"> Страница менеджера </a>
