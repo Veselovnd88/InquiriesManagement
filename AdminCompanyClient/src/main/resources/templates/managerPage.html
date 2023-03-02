@@ -1,15 +1,39 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns: xmlns:
+      xmlns:form-check-input-checked-color="http://www.w3.org/1999/xhtml"
       layout:decorate="~{layout.html}">
 <head>
     <meta charset="utf-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css} "/>
     <title>Страница Менеджера</title>
 </head>
 <body>
-  <h1>Менеджер курирует следующие отделы:</h1>
+  <h1>Информация о менеджере</h1>
+  <span th:text="${manager.getLastName()}"></span>
+
+  <div th:each="d : ${manager.getDivisions()}">
+      <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+          <label class="form-check-label" for="flexCheckChecked" th:text="${d.getName()}">
+              Checked checkbox
+          </label>
+      </div>
+
+  </div>
+  <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+      <label class="form-check-label" for="flexCheckDefault">
+          Default checkbox
+      </label>
+  </div>
+
+
+
+
+
+
 </body>
 </html>

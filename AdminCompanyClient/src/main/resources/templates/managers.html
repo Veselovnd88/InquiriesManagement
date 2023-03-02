@@ -34,24 +34,25 @@
         <td th:text="${manager.lastName}"></td>
         <td th:text="${manager.firstName} ?: '-'"></td>
         <td th:text="${manager.userName} ?: '-'"></td>
-        <td th:each="d : ${manager.getDivisions()}">
-            <p th:text="${d.getName()}"></p>
+
+        <td>
+            <ul class="list-unstyled">
+                <li>
+                    <ul>
+                        <li th:each="d: ${manager.getDivisions()}"
+                            th:text="${d.getName()}"></li>
+                    </ul>
+
+                </li>
+            </ul>
         </td>
         <td>
-            <a th:href="${'/admin/managers/'+manager.getManagerId()}">Подробней</a>
+            <a th:href="${'/admin/managers/'+manager.getManagerId()}"> Информация </a>
         </td>
     </tr>
-
     </tbody>
 </table>
 
-
-
-
-
-
-
-<hr>
 <a href="/admin"> Вернуться </a>
 <hr>
 
