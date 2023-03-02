@@ -29,18 +29,7 @@ public class AdminController {
         return "adminPage";
     }
 
-    @GetMapping("/admin/managers")
-    public String managerPage(@RegisteredOAuth2AuthorizedClient("admin-client-code")
-                                  OAuth2AuthorizedClient authorizedClient,
-                              Model model){
-        log.trace("Запрос по адресу /admin/managers");
-        List<ManagerModel> managers = new ArrayList<>();
-        managers.add(ManagerModel.builder().firstName("first").lastName("Last").managerId(1000L)
-                .build());
-        //TODO страничка менеджеров
-        model.addAttribute("managers",managers);
-        return "managers";
-    }
+
 
 
 }

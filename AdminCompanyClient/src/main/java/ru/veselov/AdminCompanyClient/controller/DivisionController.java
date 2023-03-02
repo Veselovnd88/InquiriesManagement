@@ -79,19 +79,19 @@ public class DivisionController {
     }
 
     @GetMapping(value = "/create")
-    /*Создание отдела*/
     public String divisionCreate(@ModelAttribute("division") DivisionModel division){
-        //Аннотация @ModelAttribute-> создает и помещает в модель чистый объект DivisionModel
+        /*
+        Аннотация @ModelAttribute-> создает и помещает в модель чистый объект DivisionModel*/
         log.trace("IN GET /admin/divisions/create");
+        log.trace("Creation Page of division");
         return "divisionCreate";
     }
 
     @PostMapping(value = "/create")
-    /*Создание отдела - передача готового*/
     public String createDivision(@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                  OAuth2AuthorizedClient authorizedClient,
                                  @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors){
-
+        /*Создание отдела - передача готового объекта*/
         log.trace("IN POST на /admin/divisions/create");
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
         if(errors.hasErrors()){
@@ -121,6 +121,7 @@ public class DivisionController {
     public String showDivision(@PathVariable("id") String id, Model model,
                                @RegisteredOAuth2AuthorizedClient("admin-client-code")
                                OAuth2AuthorizedClient authorizedClient){
+        log.info("Return page of single division");
         log.trace("IN GET /admin/divisions/{}",id);
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
 
@@ -148,8 +149,9 @@ public class DivisionController {
             @RegisteredOAuth2AuthorizedClient("admin-client-code")
             OAuth2AuthorizedClient authorizedClient,
             @PathVariable("id") String id){
-        log.trace("IN /admin/divisions/delete/{}", id);
 
+        log.trace("IN /admin/divisions/delete/{}", id);
+        log.trace("Deleting division method ");
         webClient.delete().uri(uri-> uri.path("divisions/{id}").build(id))
                 .attributes(oauth2AuthorizedClient(authorizedClient))
                 .retrieve()
@@ -166,7 +168,9 @@ public class DivisionController {
             @ModelAttribute("division") DivisionModel division,
                                  @RegisteredOAuth2AuthorizedClient("admin-client-code")
                                  OAuth2AuthorizedClient authorizedClient, Model model){
+
         log.trace("IN GET /admin/divisions/edit/{}",id);
+        log.trace("Show edit division page for id:{}",id);
         Optional<DivisionModel> optional = webClient.get()
                 .uri(uri-> uri.path("/divisions/{id}").build(id))
                 .attributes(oauth2AuthorizedClient(authorizedClient))
@@ -182,10 +186,12 @@ public class DivisionController {
     public String editDivision(@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                  OAuth2AuthorizedClient authorizedClient,
                                  @ModelAttribute("division") @Valid DivisionModel division, BindingResult errors,
-    @PathVariable("id") String id){
+                                 @PathVariable("id") String id){
 
         log.trace("IN PATCH на /admin/divisions/edit/{}",id);
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
+        log.trace("Edit division method, id: {}", id);
+
         if(errors.hasErrors()){
             log.info("Ошибка при вводе отдела: {}", errors.getAllErrors().get(0));
             return "divisionCreate";
@@ -206,6 +212,7 @@ public class DivisionController {
             log.info("Отдел с таким ID:{} уже существует",division.getDivisionId());
             return "divisionCreate";
         }
+
         log.trace("Redirect to :/admin/divisions/");
         return "redirect:/admin/divisions/"+optional.get().getDivisionId();
     }

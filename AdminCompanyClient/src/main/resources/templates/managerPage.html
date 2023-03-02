@@ -3,21 +3,13 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
-
 <head>
     <meta charset="utf-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Создание отдела</title>
+    <title>Страница Менеджера</title>
 </head>
 <body>
-
-<hr>
-<div th:if="${isAdmin==true}">
-    <a href="/admin"> Страница администратора </a>
-</div>
-
-<hr>
-<a href="/manager"> Страница менеджера </a>
-
+  <h1>Менеджер курирует следующие отделы:</h1>
 </body>
 </html>
