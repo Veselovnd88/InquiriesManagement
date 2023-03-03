@@ -1,16 +1,16 @@
 package ru.veselov.AdminCompanyClient.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+import ru.veselov.AdminCompanyClient.dto.ManagerDTO;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
 import ru.veselov.AdminCompanyClient.model.ManagerModel;
 
@@ -84,4 +84,39 @@ public class ManagerController {
         log.warn(responsibleDivisions.toString());
         return "managerPage";
     }
-}
+
+    @GetMapping("/edit/{id}")
+    public String editPage(@PathVariable("id") String id,
+                           @RegisteredOAuth2AuthorizedClient("admin-client-code")
+                           OAuth2AuthorizedClient authorizedClient, Model model,
+                           @ModelAttribute("manager")ManagerModel managerModel){
+
+        Set<DivisionModel> divisions = Set.of(
+                DivisionModel.builder().divisionId("VV").name("megavasya").build(),
+                DivisionModel.builder().divisionId("V1").name("megapetya").build()
+        );
+        ManagerModel manager = ManagerModel.builder().firstName("first").lastName("Last").managerId(1000L).divisions(divisions)
+                .build();
+
+        Set<DivisionModel> all = new HashSet<>(divisions);
+        all.add(
+                DivisionModel.builder().divisionId("V3").name("additional").build()
+        );
+        Map<DivisionModel, Boolean> responsibleDivisions = all.stream().collect(Collectors.toMap(d -> d, divisions::contains));
+        model.addAttribute("divMap",responsibleDivisions);
+        model.addAttribute("array",new ArrayList<DivisionModel>());
+        model.addAttribute("manager",manager);
+        return "managerEditPage";
+    }
+
+    @PatchMapping(value = "/edit/{id}")
+    public String editDivision(@RegisteredOAuth2AuthorizedClient("admin-client-code")
+                               OAuth2AuthorizedClient authorizedClient,
+                               @ModelAttribute("manager") ManagerModel managerModel, BindingResult errors,
+                               @PathVariable("id") String id) {
+        log.trace("IN PATCH /admin/managers/edit/{}",id);
+
+        log.trace(managerModel.toString());
+        return "managerPage";
+    }
+    }
