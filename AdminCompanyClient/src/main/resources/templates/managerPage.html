@@ -10,7 +10,9 @@
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css} "/>
     <title>Страница Менеджера</title>
 </head>
-<body>
+<body class="p-3 m-3 border-0">
+
+
   <h1>Информация о менеджере</h1>
   <span th:text="${manager.getLastName()}"></span>
   <hr>
@@ -33,8 +35,22 @@
       </tr>
       </tbody>
   </table>
+    <hr>
+  <div class="d-grid col-3 gap-3 mx-left">
+        <form class="d-grid" th:method="GET" th:action="@{/admin/managers/edit/{id}(id=${manager.getManagerId()})}"
+            th:object="${manager}">
+            <input class="btn btn-primary" type="submit" value="Редактировать">
+        </form>
 
+        <form class="d-grid" th:method="DELETE" th:action="@{/admin/managers/delete/{id}(id=${manager.getManagerId()})}"
+            th:object="${manager}">
+            <input class="btn btn-outline-danger" type="submit" value="Удалить">
+        </form>
 
+  <div class="d-grid">
+        <a class="btn btn-primary" href="/admin/managers" role="button">Вернуться</a>
+    </div>
+  </div>
 <!--
 <form method="POST" th:action="@{/admin/managers/{id}"
       <div class="form-check" th:each="d: ${divMap.entrySet()}">
@@ -46,7 +62,6 @@
       </div>
 
 -->
-
 
 
 </body>
