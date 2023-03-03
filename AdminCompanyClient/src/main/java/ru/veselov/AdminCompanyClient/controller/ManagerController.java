@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2Aut
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -46,8 +47,9 @@ public class ManagerController {
 
     @GetMapping(value = "/{id}")
     public String showManager(@PathVariable("id") String id, Model model,
-                               @RegisteredOAuth2AuthorizedClient("admin-client-code")
-                               OAuth2AuthorizedClient authorizedClient){
+                              @RegisteredOAuth2AuthorizedClient("admin-client-code")
+                               OAuth2AuthorizedClient authorizedClient,
+                              @ModelAttribute("divisions") ArrayList<DivisionModel> checked){
         log.info("Return page of single manager");
         log.trace("IN GET /admin/managers/{}",id);
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
@@ -63,7 +65,6 @@ public class ManagerController {
                 DivisionModel.builder().divisionId("V3").name("additional").build()
         );
 
-
         /*
         Optional<DivisionModel> optional = webClient.get()
                 .uri(uri-> uri.path("/divisions/{id}").build(id))
@@ -75,19 +76,12 @@ public class ManagerController {
         /*Получаем отдел сразу с прикрепленными менеджерами*/
         /*Для проверки*/
         //FIXME
-        Map<DivisionModel,Boolean> responsibleDivisions = new HashMap<>();
-
-        for(var d: all){
-            if(divisions.contains(d)){
-                responsibleDivisions.put(d,true);
-            }
-            else {
-                responsibleDivisions.put(d,false);
-            }
-        }
-
+        Map<DivisionModel, Boolean> responsibleDivisions = all.stream().collect(Collectors.toMap(d -> d, divisions::contains));
         model.addAttribute("manager",manager);
-        model.addAttribute("divMap",responsibleDivisions);
+
+        // model.addAttribute("divMap",responsibleDivisions);
+
+        log.warn(responsibleDivisions.toString());
         return "managerPage";
     }
 }
