@@ -18,8 +18,8 @@
 <div class="d-grid col-3 gap-3 mx-left">
   <form th:method="PATCH" th:object="${manager}"
         th:action="@{/admin/managers/edit/{id}(id=${manager.getManagerId()})}">
-<!--    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
-    <input type="text" class="form-control" id="lastName" aria-describedby="lastNameHelp">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <input type="text" th:field="*{lastName}" class="form-control" id="lastName" aria-describedby="lastNameHelp">
     <label for="lastName" class="form-label">Фамилия</label>
     <div id="lastNameHelp" class="form-text">Обязательное поле</div>
     <span class="validationError" style="color:red"
@@ -27,28 +27,26 @@
     >Error </span>
 
     <label for="firstName" class="form-label">Имя</label>
-    <input type="text" class="form-control" id="firstName" aria-describedby="firstNameHelp">
+    <input type="text" th:field="*{firstName}" class="form-control" id="firstName" aria-describedby="firstNameHelp">
     <div id="firstNameHelp" class="form-text">Обязательное поле</div>
     <span class="validationError" style="color:red"
           th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"
     >Error </span>
 
     <label for="userName" class="form-label">Имя пользователя</label>
-    <input type="text" class="form-control" id="userName" aria-describedby="userNameHelp">
+    <input type="text" th:field="*{userName}" class="form-control" id="userName" aria-describedby="userNameHelp">
     <div id="userNameHelp" class="form-text">Обязательное поле</div>
     <span class="validationError" style="color:red"
           th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}"
     >Error </span>
 
-<!--
-    <div class="form-check" th:each="d: ${divMap.entrySet()}">
-      <input class="form-check-input" type="checkbox" th:id="divCheckBox"
-             th:field="*{divisions}"
-             th:value="${d.getKey().getDivisionId()}" th:checked="${d.getValue()}">
-      <label class="form-check-label" th:for="divCheckBox" th:text="${d.getKey().getName()}"></label>
+    <div class="form-check" th:each="d: ${all}">
+      <input class="form-check-input" type="checkbox" id="divCheckBox" th:field="*{divisions}"
+             th:value="${d.getDivisionId()}" th:checked="${manager.divisions.contains(d.getDivisionId())}">
+      <label class="form-check-label" for="divCheckBox" th:text="${d.getName()}"></label>
     </div>
 
--->
+
     <input class="btn btn-primary" type="submit" value="Сохранить">
 
   </form>

@@ -15,8 +15,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class ManagerDTO {
+    private Long managerId;
     private String firstName;
     private String lastName;
     private String userName;
-    @Builder.Default private List<String> divisions = new ArrayList<>();
+    @Builder.Default private Set<String> divisions = new HashSet<>();
 }

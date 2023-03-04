@@ -89,22 +89,25 @@ public class ManagerController {
     public String editPage(@PathVariable("id") String id,
                            @RegisteredOAuth2AuthorizedClient("admin-client-code")
                            OAuth2AuthorizedClient authorizedClient, Model model,
-                           @ModelAttribute("manager")ManagerModel managerModel){
+                           @ModelAttribute("manager")ManagerDTO managerDTO){
 
         Set<DivisionModel> divisions = Set.of(
-                DivisionModel.builder().divisionId("VV").name("megavasya").build(),
-                DivisionModel.builder().divisionId("V1").name("megapetya").build()
+                DivisionModel.builder().divisionId("V1").name("megavasya").build(),
+                DivisionModel.builder().divisionId("V2").name("megapetya").build()
         );
-        ManagerModel manager = ManagerModel.builder().firstName("first").lastName("Last").managerId(1000L).divisions(divisions)
+
+        Set<String> collect = divisions.stream().map(DivisionModel::getDivisionId).collect(Collectors.toSet());
+        ManagerDTO manager = ManagerDTO.builder().firstName("first")
+                .managerId(1000L)
+                .lastName("Last").divisions(collect)
                 .build();
 
         Set<DivisionModel> all = new HashSet<>(divisions);
         all.add(
                 DivisionModel.builder().divisionId("V3").name("additional").build()
         );
-        Map<DivisionModel, Boolean> responsibleDivisions = all.stream().collect(Collectors.toMap(d -> d, divisions::contains));
-        model.addAttribute("divMap",responsibleDivisions);
-        model.addAttribute("array",new ArrayList<DivisionModel>());
+
+        model.addAttribute("all",all);
         model.addAttribute("manager",manager);
         return "managerEditPage";
     }
@@ -112,11 +115,12 @@ public class ManagerController {
     @PatchMapping(value = "/edit/{id}")
     public String editDivision(@RegisteredOAuth2AuthorizedClient("admin-client-code")
                                OAuth2AuthorizedClient authorizedClient,
-                               @ModelAttribute("manager") ManagerModel managerModel, BindingResult errors,
+                               @ModelAttribute("manager") ManagerDTO managerDTO, BindingResult errors,
                                @PathVariable("id") String id) {
         log.trace("IN PATCH /admin/managers/edit/{}",id);
+        log.trace(managerDTO.getFirstName());
+        log.trace("divisions {}", managerDTO.getDivisions());
 
-        log.trace(managerModel.toString());
-        return "managerPage";
+        return "redirect:/admin/managers/"+id;
     }
     }
