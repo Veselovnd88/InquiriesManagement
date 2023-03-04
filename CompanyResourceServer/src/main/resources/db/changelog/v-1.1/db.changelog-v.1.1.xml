@@ -8,7 +8,7 @@
     <!--Удобно нумеровать через десяток, чтобы можно было удобно добавлять строки между -->
     <include file="01-changeset-insert-division-into-table.xml" relativeToChangelogFile="true"/>
     <include file="10-changeset-insert-info-into-table.xml" relativeToChangelogFile="true"/>
-
-
+    <include file="20-changeset-insert-managers-into-table.xml" relativeToChangelogFile="true"/>
+    <include file="30-changeset-insert-into-managers-division-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

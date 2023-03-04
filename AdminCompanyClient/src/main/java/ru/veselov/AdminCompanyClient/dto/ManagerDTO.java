@@ -14,6 +14,7 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = "divisions")
 @AllArgsConstructor
 @Builder
+@ToString
 public class ManagerDTO {
     private Long managerId;
     private String firstName;
