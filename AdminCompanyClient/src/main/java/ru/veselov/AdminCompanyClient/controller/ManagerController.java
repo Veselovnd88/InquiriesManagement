@@ -45,6 +45,7 @@ public class ManagerController {
         else{
             managers=List.of(result);
         }
+
          //FIXME
         /*Set<DivisionModel> divisions = Set.of(
                 DivisionModel.builder().divisionId("VV").name("VV").build(),
@@ -64,8 +65,7 @@ public class ManagerController {
     @GetMapping(value = "/{id}")
     public String showManager(@PathVariable("id") String id, Model model,
                               @RegisteredOAuth2AuthorizedClient("admin-client-code")
-                               OAuth2AuthorizedClient authorizedClient,
-                              @ModelAttribute("divisions") ArrayList<DivisionModel> checked){
+                               OAuth2AuthorizedClient authorizedClient){
         log.info("Return page of single manager");
         log.trace("IN GET /admin/managers/{}",id);
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());

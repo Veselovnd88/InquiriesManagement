@@ -24,10 +24,13 @@ public class ResourceServerConfig {
         // @formatter:off
         http
                 .authorizeHttpRequests()
+                .antMatchers("/api/managers**").hasAuthority("SCOPE_admin")
                 .antMatchers(HttpMethod.GET,"/api**").hasAuthority("SCOPE_admin")
                 .antMatchers(HttpMethod.POST, "/api/divisions**").hasAuthority("SCOPE_admin")
                 .antMatchers(HttpMethod.DELETE, "/api/divisions**").hasAuthority("SCOPE_admin")
                 .antMatchers(HttpMethod.PATCH, "/api/divisions**").hasAuthority("SCOPE_admin")
+
+
                 .anyRequest().authenticated().and()
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         // @formatter:on

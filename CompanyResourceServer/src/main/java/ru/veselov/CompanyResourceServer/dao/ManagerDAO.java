@@ -81,6 +81,11 @@ public class ManagerDAO {
     public List<ManagerEntity> findAll(){
         return entityManager.createQuery(" SELECT m from ManagerEntity m ").getResultList();
     }
+
+    @SuppressWarnings("unchecked")
+    public List<ManagerEntity> findAllWithDivisions(){
+        return entityManager.createQuery(" SELECT m from ManagerEntity m LEFT JOIN FETCH m.divisions ").getResultList();
+    }
     public Optional<ManagerEntity> findOne(Long managerId){
         ManagerEntity manager= entityManager.find(ManagerEntity.class, managerId);
         return Optional.ofNullable(manager);

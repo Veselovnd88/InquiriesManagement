@@ -11,6 +11,7 @@ import ru.veselov.CompanyResourceServer.model.ManagerModel;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +45,10 @@ public class ManagerService {
     }
     public List<ManagerModel> findAll(){
         return managerDAO.findAll().stream().map(this::toManagerModel).toList();
+    }
+
+    public Set<ManagerModel> findAllWithDivisions(){
+        return managerDAO.findAllWithDivisions().stream().map(this::toManagerModel).collect(Collectors.toSet());
     }
 
     public ManagerModel findOneWithDivisions(Long userId) throws NoSuchManagerException {
@@ -80,7 +85,9 @@ public class ManagerService {
     }
     private ManagerModel toManagerModel(ManagerEntity manager){
         return ManagerModel.builder().managerId(manager.getManagerId()).userName(manager.getUserName())
-                .lastName(manager.getLastName()).firstName(manager.getFirstName()).build();
+                .lastName(manager.getLastName()).firstName(manager.getFirstName())
+                .divisions(manager.getDivisions().stream().map(this::toDivisionModel).collect(Collectors.toSet()))
+                .build();
     }
     private Division toDivisionEntity(DivisionModel divisionModel){
         Division division = new Division();
