@@ -10,7 +10,7 @@
     <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css} "/>
     <title>Управление менеджерами</title>
 </head>
-<body>
+<body class="p-3 m-3 border-0">
 <h1> Управление менеджерами</h1>
 
 <br>
@@ -53,8 +53,10 @@
     </tbody>
 </table>
 
-<a href="/admin"> Вернуться </a>
-<hr>
+<div class="d-grid col-3 gap-3 mx-left">
+    <a class="btn btn-primary" href="/admin/divisions/create" role="button">Создать</a>
+    <a class="btn btn-primary" href="/admin" role="button">Вернуться</a>
+</div>
 
 </body>
 </html>

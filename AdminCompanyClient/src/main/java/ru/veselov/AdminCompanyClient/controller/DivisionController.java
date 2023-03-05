@@ -21,12 +21,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.veselov.AdminCompanyClient.model.DivisionModel;
-import ru.veselov.AdminCompanyClient.model.ManagerModel;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
@@ -60,7 +58,7 @@ public class DivisionController {
                 .principal(authentication).build();
 
         OAuth2AuthorizedClient authorizedClient = auth2AuthorizedClientManager.authorize(request);
-        auth2AuthorizedClientService.saveAuthorizedClient(authorizedClient,authentication);//FIXME проверить что тут будет происходить
+        auth2AuthorizedClientService.saveAuthorizedClient(authorizedClient,authentication);
         log.trace("Authorized name: {}",
                 authorizedClient != null ? authorizedClient.getClientRegistration().getClientName() : "null");
 
@@ -124,22 +122,9 @@ public class DivisionController {
         log.info("Return page of single division");
         log.trace("IN GET /admin/divisions/{}",id);
         log.trace("Authorized name: {}, reg id: {}", authorizedClient.getPrincipalName(),authorizedClient.getClientRegistration().getClientId());
-
-        Optional<DivisionModel> optional = webClient.get()
-                .uri(uri-> uri.path("/divisions/{id}").build(id))
-                .attributes(oauth2AuthorizedClient(authorizedClient))
-                .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
-                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
-                .bodyToMono(DivisionModel.class).blockOptional();
+        Optional<DivisionModel> divisionModel = getDivisionModelFromResourceServer(authorizedClient, id);
         /*Получаем отдел сразу с прикрепленными менеджерами*/
-        /*Для проверки*/
-        //FIXME
-        optional.ifPresent(divisionModel -> divisionModel.setManagers(Set.of(ManagerModel.builder()
-                .lastName("Vasya")
-                .userName("UserPetya").build())));
-
-        model.addAttribute("division",optional.orElse(null));
+        model.addAttribute("division",divisionModel.orElse(null));
         return "divisionPage";
     }
 
@@ -171,14 +156,8 @@ public class DivisionController {
 
         log.trace("IN GET /admin/divisions/edit/{}",id);
         log.trace("Show edit division page for id:{}",id);
-        Optional<DivisionModel> optional = webClient.get()
-                .uri(uri-> uri.path("/divisions/{id}").build(id))
-                .attributes(oauth2AuthorizedClient(authorizedClient))
-                .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
-                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
-                .bodyToMono(DivisionModel.class).blockOptional();
-        model.addAttribute("division", optional.orElse(null));
+        Optional<DivisionModel> divisionModel = getDivisionModelFromResourceServer(authorizedClient, id);
+        model.addAttribute("division", divisionModel.orElse(null));
         return "divisionEditPage";
     }
 
@@ -206,7 +185,8 @@ public class DivisionController {
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
                 .onStatus(HttpStatus.FORBIDDEN::equals, clientResponse -> Mono.empty())
                 .bodyToMono(DivisionModel.class).blockOptional();
-
+        //FIXME говорит что такой отдел уже существует
+        //FIXME пропадает кнопка вернуться при ошибке
         if(optional.isEmpty()){
             errors.rejectValue("divisionId","","Отдел с таким ID уже существует");
             log.info("Отдел с таким ID:{} уже существует",division.getDivisionId());
@@ -215,6 +195,18 @@ public class DivisionController {
 
         log.trace("Redirect to :/admin/divisions/");
         return "redirect:/admin/divisions/"+optional.get().getDivisionId();
+    }
+
+    private Optional<DivisionModel> getDivisionModelFromResourceServer(@RegisteredOAuth2AuthorizedClient("admin-client-code")
+                                                                       OAuth2AuthorizedClient authorizedClient,
+                                                                       String id){
+        return webClient.get()
+                .uri(uri-> uri.path("/divisions/{id}").build(id))
+                .attributes(oauth2AuthorizedClient(authorizedClient))
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
+                .bodyToMono(DivisionModel.class).blockOptional();
     }
 
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -9,20 +9,60 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Страница администратора</title>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css} "/>
+    <title>Меню администратора</title>
 </head>
-<body>
-<h1> Управление отделами и менеджерами </h1>
 
-<hr>
-<a href="/admin/managers"> Управление менеджерами </a>
-<hr>
-<a href="/admin/divisions"> Управление отделами </a>
-<hr>
-<a href="/admin/inquiry"> Посмотреть все запросы </a>
+<body class="p-3 m-3 border-0">
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Добро пожаловать</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="/">Главная страница</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Запросы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">О ресурсе</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-<hr>
-<a href="/"> Вернуться на главную </a>
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="#">Главная страница</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/admin/managers"> Управление менеджерами</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="/admin/divisions"> Управление отделами</a>
+    </li>
+
+
+    <li class="nav-item">
+        <a class="nav-link" href="/admin/inquiries">Запросы</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="/admin/stats">Статистика</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="/">Вернуться на главную</a>
+    </li>
+
+</ul>
+
 
 </body>
 </html>

@@ -1,55 +1,66 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css} "/>
   <title>Страница отдела</title>
 </head>
-<body>
+<body class="p-3 m-3 border-0">
 <h1> Информация об отделе</h1>
-<hr>
+<br>
 <div th:if="${division!=null}">
-    <p th:text="${division.getName()+' '+division.getDivisionId()}"></p>
-
-        <form th:method="DELETE" th:action="@{/admin/divisions/delete/{id}(id=${division.getDivisionId()})}"
-        th:object="${division}">
-        <input type="submit" value="Удалить отдел" name="delete">
-        </form>
-        <br>
-        <form th:method="GET" th:action="@{/admin/divisions/edit/{id}(id=${division.getDivisionId()})}"
-              th:object="${division}">
-          <input type="submit" value="Редактировать" name="edit">
-        </form>
-    <p>Ответственные менеджеры </p>
-    <table>
+    <h2 th:text="${division.getName()}"></h2>
+    <br>
+    <div th:if="${#lists.isEmpty(division.getManagers())}">
+        <p>Этот отдел не курируют менеджеры</p>
+    </div>
+    <div th:unless="${#lists.isEmpty(division.getManagers())}">
+    <p>Этот отдел курируют </p>
+    <table class="table">
+        <thead>
         <tr>
-            <th>Фамилия</th>
-            <th> Имя </th>
-            <th> Имя пользователя </th>
+            <th scope="col">ID </th>
+            <th scope="col">Фамилия</th>
+            <th scope="col">Имя</th>
+            <th scope="col">Юзернейм</th>
+            <th scope="col">Подробней</th>
         </tr>
-        <tr th:each="manager: ${division.getManagers()}">
+        </thead>
+        <tbody>
+        <tr th:each="manager: ${division.getManagers()}" th:scope="row">
+            <td th:text="${manager.getManagerId()}"></td>
             <td th:text="${manager.lastName}"></td>
             <td th:text="${manager.firstName} ?: '-'"></td>
             <td th:text="${manager.userName} ?: '-'"></td>
             <td>
-                <a th:href="${'/admin/managers/'+manager.getManagerId()}">Подробней</a>
+                <a th:href="${'/admin/managers/'+manager.getManagerId()}"> Информация </a>
             </td>
         </tr>
+        </tbody>
     </table>
+    </div>
+    <div class="d-grid col-3 gap-3 mx-left">
+        <form class="d-grid" th:method="GET" th:action="@{/admin/divisions/edit/{id}(id=${division.getDivisionId()})}"
+              th:object="${division}">
+            <input class="btn btn-primary" type="submit" value="Редактировать">
+        </form>
 
+        <form class="d-grid" th:method="DELETE" th:action="@{/admin/divisions/delete/{id}(id=${division.getDivisionId()})}"
+              th:object="${division}">
+            <input class="btn btn-outline-danger" type="submit" value="Удалить">
+        </form>
+        <div class="d-grid">
+            <a class="btn btn-primary" href="/admin/divisions" role="button">Вернуться</a>
+        </div>
+    </div>
 
 </div>
 
 <div th:unless="${division!=null}"> Такого отдела не существует</div>
-
-
-
-<hr>
-<a href="/admin/divisions"> Вернуться </a>
-<hr>
 
 </body>
 </html>
